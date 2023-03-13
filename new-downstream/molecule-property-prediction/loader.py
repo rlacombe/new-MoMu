@@ -267,6 +267,7 @@ class MoleculeDataset_aug(InMemoryDataset):
                  pre_transform=None,
                  pre_filter=None,
                  dataset='zinc250k',
+                 dataset_path=None,
                  empty=False,
                  aug="none", aug_ratio=None):
         """
@@ -284,6 +285,7 @@ class MoleculeDataset_aug(InMemoryDataset):
         self.root = root
         self.aug = aug
         self.aug_ratio = aug_ratio
+        self.dataset_path = dataset_path
 
         super(MoleculeDataset_aug, self).__init__(root, transform, pre_transform,
                                                  pre_filter)
@@ -345,6 +347,7 @@ class MoleculeDataset_aug(InMemoryDataset):
     def process(self):
         data_smiles_list = []
         data_list = []
+        self.raw_paths[0] = self.dataset_path
 
         if self.dataset == 'zinc_standard_agent':
             input_path = self.raw_paths[0]
