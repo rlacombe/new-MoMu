@@ -61,15 +61,13 @@ def main(args):
 
     trainer.fit(model, datamodule=dm)
     
-    print(f"Best model checkpoint: {ckpt_callback.best_model_path}")
+    print(f"\n\nBest model checkpoint: {ckpt_callback.best_model_path}\n\n")
 
     # Now, I'll actually delete the other checkpoints so we can save space.
     for ckpt in os.listdir(ckpt_dir_path):
         ckpt_path = os.path.join(os.path.abspath(ckpt_dir_path), ckpt)
         if ckpt_path == ckpt_callback.best_model_path: continue
         os.remove(ckpt_path)
-
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
