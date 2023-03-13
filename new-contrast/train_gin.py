@@ -25,7 +25,9 @@ def get_ckpt_folder_name_from_args(args):
     text_encoder = "bert"
     graph_augs = sorted([args.graph_aug1, args.graph_aug2])
     sub_dir_path = f"{graph_encoder}-{text_encoder}/{graph_augs[0]}-{graph_augs[1]}" 
-    return os.path.join("all_checkpoints/", sub_dir_path)
+    ckpt_folder_path = os.path.join("all_checkpoints/", sub_dir_path)
+    if not os.path.exists(ckpt_folder_path): os.makedirs(ckpt_folder_path)
+    return ckpt_folder_path
 
 def main(args):
     pl.seed_everything(args.seed)
@@ -59,12 +61,13 @@ def main(args):
 
     trainer.fit(model, datamodule=dm)
     
-    print(f"Best model checkpoint: {ckpt_callback}")
+    print(f"Best model checkpoint: {ckpt_callback.best_model_path}")
 
     # Now, I'll actually delete the other checkpoints so we can save space.
     for ckpt in os.listdir(ckpt_dir_path):
-        if ckpt == ckpt_callback: continue
-        os.remove(ckpt)
+        ckpt_path = os.path.join(os.path.abspath(ckpt_dir_path), ckpt)
+        if ckpt_path == ckpt_callback.best_model_path: continue
+        os.remove(ckpt_path)
 
 
 
@@ -86,11 +89,3 @@ if __name__ == '__main__':
     print(args)
 
     main(args)
-
-
-
-
-
-
-
-
