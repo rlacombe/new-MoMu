@@ -7,8 +7,8 @@ This repository contains the code for an exploration of molecular multimodal fou
 
 ```
 --MoMu
-	--base-contrast   # base MoMu model pre-training
-	--base-downstream   # base MoMu downstream tasks
+	--base-contrast   # original MoMu pre-training implementation
+	--base-downstream   # original MoMu downstream tasks
 		-- graph-retrieval   # graph retrieval task
 		-- molecule-caption   # molecular captioning task
 		-- molecule-generation   # molecular generation task
@@ -22,8 +22,8 @@ This repository contains the code for an exploration of molecular multimodal fou
 		-- graph-retrieval   # graph retrieval datasets
 		-- molecule-caption   # molecular captioning datasets
 		-- molecule-generation   # molecular generation datasets
-	--mini-contrast   # mini-MoMu pre-training (WIP)
-	--mini-downstream   # mini-MoMu benchmarking (WIP)
+	--new-contrast   # new MoMu contrastive pre-training (WIP)
+	--new-downstream   # new MoMu downstream tasks benchmarking (WIP)
 	--text-preprocess   # relevance scoring to improve text retrieval (WIP)
 ```
 
@@ -31,11 +31,11 @@ This repository contains the code for an exploration of molecular multimodal fou
 
 **`base-MoMu`**: original model trained on contrast-XL base dataset.
 - `base-contrast`: code for contrastive pre-training
-- `ase-downstream`: code for fine-tuning on downstream tasks
+- `base-downstream`: code for fine-tuning on downstream tasks
 
-**`mini-MoMu`** [WIP]: lightweight model family trained for experimental purposes. 
-- `mini-contrast` [WIP]: code to perform contrastive pre-training with mini-MoMum on the smaller contrast-pretrain datasets
-- `mini-downstream` [WIP]: code to evaluate performance on a downstream task.
+**`new-MoMu`** [WIP]: lightweight model family trained for experimental purposes. 
+- `new-contrast` [WIP]: code to perform contrastive pre-training with mini-MoMum on the smaller contrast-pretrain datasets
+- `new-downstream` [WIP]: code to evaluate performance on a downstream task.
 
 
 ## Tasks
