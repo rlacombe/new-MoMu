@@ -43,7 +43,7 @@ def main(args):
     print('total params:', sum(p.numel() for p in model.parameters()))
 
     callbacks = []
-    callbacks.append(plc.ModelCheckpoint(dirpath="../checkpoints/pretrain_gin/", every_n_epochs=1))
+    callbacks.append(plc.ModelCheckpoint(dirpath="checkpoints/pretrain_gin/", every_n_epochs=1))
     strategy = pl.strategies.DDPSpawnStrategy(find_unused_parameters=False)
     trainer = Trainer.from_argparse_args(args, callbacks=callbacks, strategy=strategy)
 
