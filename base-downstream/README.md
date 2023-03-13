@@ -34,7 +34,7 @@ We propose a new task called zero-shot text-to-graph molecule generation. The go
 
 # Molecule property prediction
 
-Molecular property prediction is a graph-level prediction task that is usually used to evaluate the transfer ability of pre-trained graph encoders. The code for this downstream task is available in the `molecule-prediction/` folder.
+Molecular property prediction is a graph-level prediction task that is usually used to evaluate the transfer ability of pre-trained graph encoders. The code for this downstream task is available in the `property-prediction/` folder.
 
 # Citation
 
