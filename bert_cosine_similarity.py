@@ -14,7 +14,7 @@ folder_to_save = 'data/contrast-pretrain/S/updated_text/'
 old_file_path = 'data/contrast-pretrain/S/text/'
 folder_path = 'data/contrast-pretrain/S/text/*.txt'  # Change folder path to run on XL data if needed
 file_extension = '*.txt'
-
+synonyms = False
 # Load synonyms cvs file as dataframe
 pubchem_synonyms_csv = os.path.join('data', 'PubChem_synonyms_list.csv')
 
@@ -22,7 +22,6 @@ pubchem_synonyms_csv = os.path.join('data', 'PubChem_synonyms_list.csv')
 pubchem_synonyms_df = pd.read_csv(pubchem_synonyms_csv)
 pubchem_synonyms_df = pubchem_synonyms_df.sort_values(by='cid').reset_index(drop=True)
 # Loop over txt files in folder
-# for file_path in glob.glob(folder_path):
 for file_path in glob.glob(folder_path):
 
     # Create an empty dataframe
