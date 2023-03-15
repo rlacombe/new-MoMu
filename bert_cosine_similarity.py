@@ -4,6 +4,7 @@ import os
 import pandas as pd
 import glob
 import shutil
+import numpy as np
 
 # Load pre-trained BERT model and tokenizer
 tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
@@ -26,6 +27,8 @@ for file_path in glob.glob(folder_path):
 
     # Create an empty dataframe
     df = pd.DataFrame(columns=['paragraph', 'number', 'molecule', 'score'])
+    paragraphs_df = pd.DataFrame(columns=['paragraph','number'])
+    molecules_df = pd.DataFrame(columns=['molecule_name', 'molecule_embedding'])
     # Print file name
     txt_name = os.path.basename(file_path)
     if os.path.exists(os.path.join(folder_to_save, txt_name)):
@@ -51,50 +54,67 @@ for file_path in glob.glob(folder_path):
         shutil.copyfile(old_path, new_path)
         continue
     # Choose target word
-    counter = 0
-    for molecule in molecule_all:
-        if counter > 5:
+
+
+    for i in range(len(paragraphs)):
+        paragraph_tokens = tokenizer.tokenize(paragraphs[i])
+        # Check if document_tokens is empty
+        if len(paragraph_tokens) == 0:
+            print("Error: Empty input sequence.")
             continue
+
+        # Convert tokens to tensor and add batch dimension
+        paragraph_tensor = torch.tensor([tokenizer.convert_tokens_to_ids(paragraph_tokens)]).long()
+        if paragraph_tensor.size(1) > max_bert_token_lenght:
+            print("Error: Paragraph too long")  # Might fix later - split the long paragraph, tokenize then merge
+            continue
+        # Get BERT embeddings for target word and document
+        with torch.no_grad():
+            paragraph_embedding = model(paragraph_tensor)[0][:, 0, :]
+            paragraphs_df_new = pd.DataFrame({'paragraph': [paragraph_embedding], 'number' : [i]})
+            paragraphs_df = pd.concat([paragraphs_df, paragraphs_df_new], ignore_index=True)
+        print(f"Done with paragraph {i} of {len(paragraphs)}")
+        if i > 100:
+            break
+
+    for j in range(len(molecule_all)):
+        molecule = molecule_all[j]
+        # if counter > 5:
+        #     continue
         target_word = molecule
 
         # Tokenize target word and document
         target_word_tokens = tokenizer.tokenize(target_word)
-        for i in range(len(paragraphs)):
-            paragraph_tokens = tokenizer.tokenize(paragraphs[i])
-            # Check if document_tokens is empty
-            if len(paragraph_tokens) == 0:
-                print("Error: Empty input sequence.")
-                continue
+        # Convert tokens to tensor and add batch dimension
+        target_word_tensor = torch.tensor([tokenizer.convert_tokens_to_ids(target_word_tokens)]).long()
 
-            # Convert tokens to tensor and add batch dimension
-            target_word_tensor = torch.tensor([tokenizer.convert_tokens_to_ids(target_word_tokens)]).long()
-            paragraph_tensor = torch.tensor([tokenizer.convert_tokens_to_ids(paragraph_tokens)]).long()
-            if paragraph_tensor.size(1) > max_bert_token_lenght:
-                print("Error: Paragraph too long")  # Might fix later - split the long paragraph, tokenize then merge
-                continue
-            # Get BERT embeddings for target word and document
-            with torch.no_grad():
-                target_word_embedding = model(target_word_tensor)[0][:, 0, :]
-                paragraph_embedding = model(paragraph_tensor)[0][:, 0, :]
+        # Get BERT embeddings for target word and document
+        with torch.no_grad():
+            target_word_embedding = model(target_word_tensor)[0][:, 0, :]
+            molecules_df_new = pd.DataFrame({'molecule_name': [molecule], 'molecule_embedding': [target_word_embedding]})
+            molecules_df = pd.concat([molecules_df, molecules_df_new], ignore_index=True)
+        print(f"Done with molecule {j} of {len(molecule_all)}")
+        if j > 10:
+            break
+    # Everything above works. Everything below is a work in progress.
+    # Convert the "paragraph" column to a list of tensors
+    paragraph_tensors = [tensor for tensor in paragraphs_df['paragraph']]
 
-            similarity = torch.cosine_similarity(target_word_embedding, paragraph_embedding, dim=1)
-            df_new = pd.DataFrame({'paragraph': [paragraphs[i]],
-                                   'number': [i + 1],
-                                   'molecule': [molecule],
-                                   'score': [similarity.item()]})
-            df = pd.concat([df, df_new], ignore_index=True)
-            print(
-                f"Paragraph {i + 1}, molecule name:{molecule} similarity score: {similarity.item()}, text file: {txt_name}")
-            if i > 100:
-                break
-        counter = 1 + counter
+    # Stack the tensors along a new dimension to create a 2D tensor
+    paragraph_embeddings = torch.stack(paragraph_tensors, dim=0)
 
+    # Convert the "molecule_embedding" column to a list of tensors
+    molecule_tensors = [tensor for tensor in molecules_df['molecule_embedding']]
 
-    df = df.sort_values('score', ascending=False)
-    df = df.drop_duplicates(subset='paragraph').head(5)
-    save_txt = os.path.join(folder_to_save, txt_name)
-    with open(save_txt, 'w', encoding='utf-8') as file:
-        file.write('\n'.join(df['paragraph'].str.strip().tolist()))
+    # Stack the tensors along a new dimension to create a 2D tensor
+    molecule_embeddings = torch.stack(molecule_tensors, dim=0)
+
+    # Cosine similarity
+    similarity_matrix = torch.cosine_similarity(paragraph_embeddings.unsqueeze(1), molecule_embeddings.unsqueeze(0),
+                                                dim=2)
+    average_similarity = torch.mean(similarity_matrix, dim=1)
+    paragraphs_df['average_similarity'] = average_similarity.detach().numpy()
+
     print('Done with {}'.format(txt_name))
 
 print('Finished')
