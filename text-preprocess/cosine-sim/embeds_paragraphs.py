@@ -29,9 +29,11 @@ for i, filename in enumerate(files):
 
     if filename.endswith(".txt"):
 
+        embeds = pd.DataFrame(columns=["cid", "para_num", "para_embed"])    
+
         # Get molecule CID
         cid = int(filename.split("_")[1].split(".")[0])
-        print(f"Processing molecule {cid}: number {i} of {len(files)}.")
+        print(f"Processing text file for molecule {cid}: number {i+1} of {len(files)}.")
 
         # Loop through each paragraph in the file
         paragraphs = open(os.path.join(dir_path, filename))
@@ -39,6 +41,7 @@ for i, filename in enumerate(files):
 
             # Tokenize paragraph
             paragraph_tokens = tokenizer.tokenize(paragraph)
+            paragraph_tokens = paragraph_tokens[:max_bert_token_length]
 
             # Check if document_tokens is empty
             if len(paragraph_tokens) == 0:
@@ -47,9 +50,6 @@ for i, filename in enumerate(files):
 
             # Convert tokens to tensor and add batch dimension
             paragraph_tensor = torch.tensor([tokenizer.convert_tokens_to_ids(paragraph_tokens)]).long()
-            if paragraph_tensor.size(1) > max_bert_token_length:
-                print("Error: Paragraph too long")  # Might fix later - split the long paragraph, tokenize then merge
-                continue
         
             # Get BERT embeddings for paragraph
             with torch.no_grad():
@@ -60,8 +60,9 @@ for i, filename in enumerate(files):
 
         print(f"Done with molecule {i} of {len(files)}.\n")
                     
-# Save the results to a CSV file
-embeds.to_csv("embeds.csv", index=False)
+        # Save the results to a CSV file
+        embeds.to_csv(f"embeds_{cid}.csv", index=False)
+
 print('Finished')
 
 
