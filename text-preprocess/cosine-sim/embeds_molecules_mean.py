@@ -29,10 +29,9 @@ print('Using device:', device)
 model.to(device)
 
 # Get molecule synonyms
-with open(pubchem_synonyms_csv, 'r') as f:
-
-pubchem_synonyms_df = pd.read_csv(names_path)
-#pubchem_synonyms_df = pubchem_synonyms_df.sort_values(by='cid').reset_index(drop=True)
+with open(names_path, 'r') as f:
+    pubchem_synonyms_df = pd.read_csv(names_path)
+    #pubchem_synonyms_df = pubchem_synonyms_df.sort_values(by='cid').reset_index(drop=True)
 
 # Loop through each text file in the directory
 for i, filename in enumerate(files):
@@ -52,13 +51,13 @@ for i, filename in enumerate(files):
         else:
             synonyms = molecule_synonyms
              
-        names_tensors_list = []
+        name_tensors_list = []
 
         for n, name in enumerate(synonyms): 
 
             # Tokenize paragraph
             name_tokens = tokenizer.tokenize(name)
-            name_tokens = paragraph_tokens[:max_bert_token_length]
+            name_tokens = name_tokens[:max_bert_token_length]
 
             # Check if name_tokens is empty
             if len(name_tokens) == 0:
@@ -66,24 +65,24 @@ for i, filename in enumerate(files):
                 continue
 
             # Convert tokens to tensor  
-            name_tensor = torch.tensor([tokenizer.convert_tokens_to_ids(name_tokens)]).short()
+            name_tensor = torch.tensor([tokenizer.convert_tokens_to_ids(name_tokens)]).int()
             
             name_tensors_list.append(name_tensor.T)                
             print(f"Done with synonym {n}.")
 
-            # Pad and stack tensors along the batch dimension
-            names_tensor = pad_sequence(name_tensors_list, batch_first=True).squeeze(2).to(device)
-            print(names_tensor.shape)
+        # Pad and stack tensors along the batch dimension
+        names_tensor = pad_sequence(name_tensors_list, batch_first=True).squeeze(2).to(device)
+        print(names_tensor.shape)
 
-            # Get BERT embeddings for all names tensor
-            with torch.no_grad():
-                names_embeddings = model(names_tensors)[0][:, 0, :].to(device)
+        # Get BERT embeddings for all names tensor
+        with torch.no_grad():
+            names_embeddings = model(names_tensor)[0][:, 0, :].to(device)
 
-            # Compute mean along first dimension
-            query_vector = torch.mean(names_embeddings, dim=0)
+        # Compute mean along first dimension
+        query_vector = torch.mean(names_embeddings, dim=0)
 
-            # Save the results to a PT file
-            torch.save(query_vector, f"query_mean_{cid}.pt")
-            print(f"Done with molecule {i+1} of {len(files)}.\n")
+        # Save the results to a PT file
+        torch.save(query_vector, f"query_mean_{cid}.pt")
+        print(f"Done with molecule {i+1} of {len(files)}.\n")
             
 print('Finished')

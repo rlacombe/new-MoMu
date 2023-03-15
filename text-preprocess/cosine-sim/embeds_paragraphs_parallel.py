@@ -52,7 +52,7 @@ for i, filename in enumerate(files):
                     continue
 
                 # Convert tokens to tensor  
-                paragraph_tensor = torch.tensor([tokenizer.convert_tokens_to_ids(paragraph_tokens)]).short()
+                paragraph_tensor = torch.tensor([tokenizer.convert_tokens_to_ids(paragraph_tokens)]).int()
                 paragraph_tensors_list.append(paragraph_tensor.T)                
                 print(f"Done with paragraph {l}.")
 
