@@ -20,9 +20,6 @@ tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 model = BertModel.from_pretrained('bert-base-uncased')
 max_bert_token_length = 512
 
-'''
-# TODO: implement GPU and move data/model to CUDA device
-'''
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print('Using device:', device)
 
@@ -66,7 +63,7 @@ for i, filename in enumerate(files):
 
                 print(f"Done with paragraph {l}.")
 
-            print(f"Done with molecule {i} of {len(files)}.\n")
+            print(f"Done with molecule {i+1} of {len(files)}.\n")
                     
             # Save the results to a CSV file
             embeds.to_csv(f"embeds_{cid}.csv", index=False)

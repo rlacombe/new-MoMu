@@ -3,6 +3,7 @@ import argparse
 import pandas as pd
 import torch
 from transformers import BertTokenizer, BertModel
+from torch.nn.utils.rnn import pad_sequence
 
 parser = argparse.ArgumentParser(description='Extract embeddings of paragraphs in file texts.')
 parser.add_argument('--directory', '-d', type=str, default='../../data/S/text', help='The directory containing the text files')
@@ -20,9 +21,6 @@ tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 model = BertModel.from_pretrained('bert-base-uncased')
 max_bert_token_length = 512
 
-'''
-# TODO: implement GPU and move data/model to CUDA device
-'''
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print('Using device:', device)
 
@@ -59,12 +57,15 @@ for i, filename in enumerate(files):
                     continue
 
                 # Convert tokens to tensor  
-                paragraph_tensor = torch.tensor([tokenizer.convert_tokens_to_ids(paragraph_tokens)]).long().to(device)
-                paragraph_tensors_list.append(paragraph_tensor)                
+                paragraph_tensor = torch.tensor([tokenizer.convert_tokens_to_ids(paragraph_tokens)]).long()
+                #print(paragraph_tensor.shape)
+                paragraph_tensors_list.append(paragraph_tensor.T)                
                 print(f"Done with paragraph {l}.")
 
-            # Stack tensors along the batch dimension
-            paragraph_tensors = torch.stack(paragraph_tensors_list, dim=0).to(device)
+            # Pad and stack tensors along the batch dimension
+            paragraph_tensors = pad_sequence(paragraph_tensors_list, batch_first=True).squeeze(2).to(device)
+            print(paragraph_tensors.shape)
+            #paragraph_tensors = torch.stack(padded_tensors, dim=0).to(device)
 
             # Get BERT embeddings for full tensor
             with torch.no_grad():
@@ -72,8 +73,6 @@ for i, filename in enumerate(files):
 
             # Save the results to a PT file
             torch.save(paragraph_embeddings, f"embeds_{cid}.pt")
-            print(f"Done with molecule {i} of {len(files)}.\n")
+            print(f"Done with molecule {i+1} of {len(files)}.\n")
             
 print('Finished')
-
-
