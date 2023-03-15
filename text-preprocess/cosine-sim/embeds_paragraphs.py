@@ -23,6 +23,11 @@ max_bert_token_length = 512
 '''
 # TODO: implement GPU and move data/model to CUDA device
 '''
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print('Using device:', device)
+
+tokenizer
+model.to(device)
 
 # Loop through each text file in the directory
 for i, filename in enumerate(files):
@@ -35,33 +40,36 @@ for i, filename in enumerate(files):
         cid = int(filename.split("_")[1].split(".")[0])
         print(f"Processing text file for molecule {cid}: number {i+1} of {len(files)}.")
 
-        # Loop through each paragraph in the file
-        paragraphs = open(os.path.join(dir_path, filename))
-        for l, paragraph in enumerate(paragraphs):
+        # Loop through each paragraph in the file        
+        with open(os.path.join(dir_path, filename), 'r') as source_file:
 
-            # Tokenize paragraph
-            paragraph_tokens = tokenizer.tokenize(paragraph)
-            paragraph_tokens = paragraph_tokens[:max_bert_token_length]
+            # Read the first 500 lines of the file
+            paragraphs = source_file.readlines()[:500]
+            for l, paragraph in enumerate(paragraphs): 
 
-            # Check if document_tokens is empty
-            if len(paragraph_tokens) == 0:
-                print("Error: Empty input sequence.")
-                continue
+                # Tokenize paragraph
+                paragraph_tokens = tokenizer.tokenize(paragraph)
+                paragraph_tokens = paragraph_tokens[:max_bert_token_length]
 
-            # Convert tokens to tensor and add batch dimension
-            paragraph_tensor = torch.tensor([tokenizer.convert_tokens_to_ids(paragraph_tokens)]).long()
+                # Check if document_tokens is empty
+                if len(paragraph_tokens) == 0:
+                    print("Error: Empty input sequence.")
+                    continue
+
+                # Convert tokens to tensor and add batch dimension
+                paragraph_tensor = torch.tensor([tokenizer.convert_tokens_to_ids(paragraph_tokens)]).long().to(device)
         
-            # Get BERT embeddings for paragraph
-            with torch.no_grad():
-                paragraph_embedding = model(paragraph_tensor)[0][:, 0, :]
-                embeds = pd.concat([embeds, pd.DataFrame({'cid': cid, "para_num": l, "para_embed": [paragraph_embedding]}, index=[0])], ignore_index=True)                                    
+                # Get BERT embeddings for paragraph
+                with torch.no_grad():
+                    paragraph_embedding = model(paragraph_tensor)[0][:, 0, :].to(device)
+                    embeds = pd.concat([embeds, pd.DataFrame({'cid': cid, "para_num": l, "para_embed": [paragraph_embedding]}, index=[0])], ignore_index=True)                                    
 
-            print(f"Done with paragraph {l}.")
+                print(f"Done with paragraph {l}.")
 
-        print(f"Done with molecule {i} of {len(files)}.\n")
+            print(f"Done with molecule {i} of {len(files)}.\n")
                     
-        # Save the results to a CSV file
-        embeds.to_csv(f"embeds_{cid}.csv", index=False)
+            # Save the results to a CSV file
+            embeds.to_csv(f"embeds_{cid}.csv", index=False)
 
 print('Finished')
 
