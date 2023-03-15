@@ -299,7 +299,7 @@ class MoleculeDataset_aug(InMemoryDataset):
         for key in self.data.keys:
             item, slices = self.data[key], self.slices[key]
             s = list(repeat(slice(None), item.dim()))
-            s[data.cat_dim(key, item)] = slice(slices[idx], slices[idx + 1])
+            s[data.__cat_dim__(key, item)] = slice(slices[idx], slices[idx + 1])
             data[key] = item[s]
 
         if self.aug == 'dropN':
@@ -327,14 +327,6 @@ class MoleculeDataset_aug(InMemoryDataset):
             assert False
 
         return data
-
-
-    @property
-    def raw_file_names(self):
-        file_name_list = os.listdir(self.raw_dir)
-        # assert len(file_name_list) == 1     # currently assume we have a
-        # # single raw file
-        return file_name_list
 
     @property
     def processed_file_names(self):
@@ -899,18 +891,10 @@ class MoleculeDataset(InMemoryDataset):
         for key in self.data.keys:
             item, slices = self.data[key], self.slices[key]
             s = list(repeat(slice(None), item.dim()))
-            s[data.cat_dim(key, item)] = slice(slices[idx],
+            s[data.__cat_dim__(key, item)] = slice(slices[idx],
                                                     slices[idx + 1])
             data[key] = item[s]
         return data
-
-
-    @property
-    def raw_file_names(self):
-        file_name_list = os.listdir(self.raw_dir)
-        # assert len(file_name_list) == 1     # currently assume we have a
-        # # single raw file
-        return file_name_list
 
     @property
     def processed_file_names(self):

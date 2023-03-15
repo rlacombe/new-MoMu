@@ -68,6 +68,7 @@ def main(args):
         ckpt_path = os.path.join(os.path.abspath(ckpt_dir_path), ckpt)
         if ckpt_path == ckpt_callback.best_model_path: continue
         os.remove(ckpt_path)
+    os.rename(ckpt_callback.best_model_path, os.path.join(os.path.abspath(ckpt_dir_path), 'best-ckpt.ckpt'))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

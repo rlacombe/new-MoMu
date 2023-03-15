@@ -216,6 +216,8 @@ def main():
 
         max_index = val_acc_list.index(max(val_acc_list))
         
+        if not os.path.exists('./checkpoint'):
+          os.makedirs('./checkpoint')
         torch.save(model.state_dict(), "./checkpoint/"+args.dataset+str(epoch)+".pth")
 
 

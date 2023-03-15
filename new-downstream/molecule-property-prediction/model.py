@@ -345,20 +345,10 @@ class GNN_graphpred(torch.nn.Module):
             self.graph_pred_linear = torch.nn.Linear(self.mult * self.emb_dim, self.num_tasks)
 
     def from_pretrained(self, model_file):
-        #self.gnn = GNN(self.num_layer, self.emb_dim, JK = self.JK, drop_ratio = self.drop_ratio)
-
-        if 'pretrain' in model_file:
-            if model_file == 'pretrain_scibert':
-                ckpt = torch.load("./checkpoints/littlegin=graphclinit_bert=scibert_epoch=299-step=18300.ckpt")
-            elif model_file == 'pretrain_kvplm':
-                ckpt = torch.load("./checkpoints/littlegin=graphclinit_bert=kvplm_epoch=299-step=18300.ckpt")
-            ckpt = ckpt['state_dict']
-            pretrained_dict = {k[14:]: v for k, v in ckpt.items()}
-            missing_keys, unexpected_keys = self.gnn.load_state_dict(pretrained_dict, strict=False)
-            # print(missing_keys)
-            # print(unexpected_keys)
-        else:
-            self.gnn.load_state_dict(torch.load(model_file))
+        ckpt = torch.load(model_file)
+        ckpt = ckpt['state_dict']
+        pretrained_dict = {k[14:]: v for k, v in ckpt.items()}
+        self.gnn.load_state_dict(pretrained_dict, strict=False)
 
     def forward(self, *argv):
         if len(argv) == 4:
