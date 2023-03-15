@@ -34,7 +34,7 @@ for i, filename in enumerate(files):
 
     if filename.endswith(".txt"):
 
-        embeds = pd.DataFrame(columns=["cid", "para_num", "para_embed"])    
+        embeds = pd.DataFrame(columns=["cid", "para_num", "para_embed"])   
 
         # Get molecule CID
         cid = int(filename.split("_")[1].split(".")[0])
@@ -62,7 +62,7 @@ for i, filename in enumerate(files):
                 # Get BERT embeddings for paragraph
                 with torch.no_grad():
                     paragraph_embedding = model(paragraph_tensor)[0][:, 0, :].to(device)
-                    embeds = pd.concat([embeds, pd.DataFrame({'cid': cid, "para_num": l, "para_embed": [paragraph_embedding]}, index=[0])], ignore_index=True)                                    
+                    embeds = pd.concat([embeds, pd.DataFrame({'cid': cid, "para_num": l, "para_embed": [paragraph_embedding.cpu()]}, index=[0])], ignore_index=True)                                    
 
                 print(f"Done with paragraph {l}.")
 
