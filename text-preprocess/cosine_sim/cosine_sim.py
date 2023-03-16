@@ -3,7 +3,7 @@ import torch
 from torch.nn.utils.rnn import pad_sequence
 
 
-def paragraph_embeds(text_file, tokenizer, model, device, max_para_length, max_bert_token_length):
+def get_paragraph_embeds(text_file, tokenizer, model, device, max_para_length, max_bert_token_length):
 
     """
     Given a text file containing paragraphs, this method tokenizes each paragraph, converts the tokens to a PyTorch tensor,
@@ -42,7 +42,7 @@ def paragraph_embeds(text_file, tokenizer, model, device, max_para_length, max_b
             # Convert tokens to tensor  
             paragraph_tensor = torch.tensor([tokenizer.convert_tokens_to_ids(paragraph_tokens)]).int()
             paragraph_tensors_list.append(paragraph_tensor.T)                
-            print(f"Done with paragraph {l}.")
+            #print(f"Done with paragraph {l}.")
 
         # Pad and stack tensors along the batch dimension
         paragraph_tensors = pad_sequence(paragraph_tensors_list, batch_first=True).squeeze(2).to(device)
@@ -84,7 +84,7 @@ def get_molecule_synonyms(cid, pubchem_synonyms_df, top_k=10):
     return synonyms
 
 
-def get_molecule_embeds_mean(synonyms, tokenizer, model, device, max_bert_token_length, syn_weight=0.7):
+def get_molecule_embeddings(synonyms, tokenizer, model, device, max_bert_token_length):
 
     """
     Given a list of molecule synonyms, a tokenizer, a pre-trained language model, a device to run the model on, and a maximum length for the BERT tokens, returns the mean embedding of the molecule synonyms.
@@ -118,17 +118,54 @@ def get_molecule_embeds_mean(synonyms, tokenizer, model, device, max_bert_token_
         name_tensor = torch.tensor([tokenizer.convert_tokens_to_ids(name_tokens)]).int()
             
         name_tensors_list.append(name_tensor.T)                
-        print(f"Done with synonym {n}.")
+        #print(f"Done with synonym {n}.")
 
     # Pad and stack tensors along the batch dimension
     names_tensor = pad_sequence(name_tensors_list, batch_first=True).squeeze(2).to(device)
-    print(names_tensor.shape)
+    #print(names_tensor.shape)
 
     # Get BERT embeddings for all names tensor
     with torch.no_grad():
-        names_embeddings = model(names_tensor)[0][:, 0, :].to(device)
-
-    # Compute mean along first dimension
-    molecule_embeds = (1-syn_weight)*names_embeddings[0]+syn_weight*torch.mean(names_embeddings[1:11], dim=0)
+        molecule_embeds = model(names_tensor)[0][:, 0, :].to(device)
 
     return molecule_embeds
+
+
+
+def get_sentence_query_embeddings(synonyms, tokenizer, model, device, max_bert_token_length):
+
+    """
+    Generate BERT embeddings for a sentence describing a chemical compound and its properties.
+    
+    Args:
+        synonyms (list): A list of synonyms for the chemical compound, where the first and last elements are the name of 
+                         the compound and the last element is another name or abbreviation for it.
+        tokenizer: The BERT tokenizer used to tokenize the sentence.
+        model: The BERT model used to generate embeddings.
+        device: The device (CPU or GPU) where the model should be run.
+        max_bert_token_length (int): The maximum number of BERT tokens to use for the sentence.
+    
+    Returns:
+        torch.Tensor: A tensor of shape (768,) containing the BERT embedding for the sentence.
+    """
+    
+    synonyms_str = ', '.join(synonyms[1:-1])
+    sentence = f"Molecular, chemical, electrochemical, physical, quantum mechanical, biochemical, biological, medical and physiological properties,\
+                characteristics, and applications of {synonyms[0]}, a compound also known as {synonyms_str} or {synonyms[-1]}."
+
+    # Tokenize paragraph
+    sentence_tokens = tokenizer.tokenize(sentence)
+    sentence_tokens = sentence_tokens[:max_bert_token_length]
+
+    # Check if name_tokens is empty
+    if len(sentence_tokens) == 0:
+        print("Error: empty synonyms list.") 
+        
+    # Convert tokens to tensor  
+    sentence_tensor = torch.tensor([tokenizer.convert_tokens_to_ids(sentence_tokens)]).int()  
+
+    # Get BERT embeddings for all the query sentence
+    with torch.no_grad():
+        sentence_query_embeds = model(sentence_tensor)[0][:, 0, :].to(device)
+
+    return sentence_query_embeds
