@@ -71,7 +71,11 @@ def get_molecule_synonyms(cid, pubchem_synonyms_df, top_k=10):
     """
 
     molecule_name = pubchem_synonyms_df.loc[pubchem_synonyms_df['cid'] == cid]['cmpdname'].iat[0]
-    molecule_synonyms = pubchem_synonyms_df.loc[pubchem_synonyms_df['cid'] == cid]['cmpdsynonym'].iat[0].split('|')
+
+    try:
+        molecule_synonyms = pubchem_synonyms_df.loc[pubchem_synonyms_df['cid'] == cid]['cmpdsynonym'].iat[0].split('|')
+    except:
+        molecule_synonyms = []
 
     if molecule_name not in molecule_synonyms:
         synonyms = [molecule_name] + molecule_synonyms

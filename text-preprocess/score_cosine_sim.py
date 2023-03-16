@@ -66,6 +66,9 @@ for i, text_filename in progress_bar:
     
         # Get molecule CID
         cid = int(text_filename.split("_")[-1].split(".")[0])
+
+        if os.path.isfile(os.path.join(scores_dir, f"scores_{cid}.pt")): continue
+
         progress_bar.set_description(f"Molecule {cid} ({i+1}/{len(text_files)})")
 
         # Retrieve paragraph embeddings
