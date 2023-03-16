@@ -13,7 +13,7 @@ from rdkit import DataStructs
 from rdkit.Chem.rdMolDescriptors import GetMorganFingerprintAsBitVect
 from torch.utils import data
 from torch_geometric.data import Data
-from torch_geometric.data import InMemoryDataset
+from torch_geometric.data import InMemoryDataset, Dataset
 from torch_geometric.data import Batch
 from itertools import repeat, product, chain
 
@@ -267,6 +267,7 @@ class MoleculeDataset_aug(InMemoryDataset):
                  pre_transform=None,
                  pre_filter=None,
                  dataset='zinc250k',
+                 dataset_path=None,
                  empty=False,
                  aug="none", aug_ratio=None):
         """
@@ -284,6 +285,7 @@ class MoleculeDataset_aug(InMemoryDataset):
         self.root = root
         self.aug = aug
         self.aug_ratio = aug_ratio
+        self.dataset_path = dataset_path
 
         super(MoleculeDataset_aug, self).__init__(root, transform, pre_transform,
                                                  pre_filter)
@@ -297,7 +299,7 @@ class MoleculeDataset_aug(InMemoryDataset):
         for key in self.data.keys:
             item, slices = self.data[key], self.slices[key]
             s = list(repeat(slice(None), item.dim()))
-            s[data.cat_dim(key, item)] = slice(slices[idx], slices[idx + 1])
+            s[data.__cat_dim__(key, item)] = slice(slices[idx], slices[idx + 1])
             data[key] = item[s]
 
         if self.aug == 'dropN':
@@ -326,14 +328,6 @@ class MoleculeDataset_aug(InMemoryDataset):
 
         return data
 
-
-    @property
-    def raw_file_names(self):
-        file_name_list = os.listdir(self.raw_dir)
-        # assert len(file_name_list) == 1     # currently assume we have a
-        # # single raw file
-        return file_name_list
-
     @property
     def processed_file_names(self):
         return 'geometric_data_processed.pt'
@@ -345,6 +339,7 @@ class MoleculeDataset_aug(InMemoryDataset):
     def process(self):
         data_smiles_list = []
         data_list = []
+        self.raw_paths[0] = self.dataset_path
 
         if self.dataset == 'zinc_standard_agent':
             input_path = self.raw_paths[0]
@@ -868,6 +863,7 @@ class MoleculeDataset(InMemoryDataset):
                  pre_transform=None,
                  pre_filter=None,
                  dataset='zinc250k',
+                 dataset_path=None,
                  empty=False):
         """
         Adapted from qm9.py. Disabled the download functionality
@@ -881,6 +877,7 @@ class MoleculeDataset(InMemoryDataset):
         initializing empty dataset
         """
         self.dataset = dataset
+        self.dataset_path = dataset_path
         self.root = root
 
         super(MoleculeDataset, self).__init__(root, transform, pre_transform,
@@ -896,18 +893,10 @@ class MoleculeDataset(InMemoryDataset):
         for key in self.data.keys:
             item, slices = self.data[key], self.slices[key]
             s = list(repeat(slice(None), item.dim()))
-            s[data.cat_dim(key, item)] = slice(slices[idx],
+            s[data.__cat_dim__(key, item)] = slice(slices[idx],
                                                     slices[idx + 1])
             data[key] = item[s]
         return data
-
-
-    @property
-    def raw_file_names(self):
-        file_name_list = os.listdir(self.raw_dir)
-        # assert len(file_name_list) == 1     # currently assume we have a
-        # # single raw file
-        return file_name_list
 
     @property
     def processed_file_names(self):
@@ -1176,7 +1165,7 @@ class MoleculeDataset(InMemoryDataset):
 
         elif self.dataset == 'muv':
             smiles_list, rdkit_mol_objs, labels = \
-                _load_muv_dataset(self.raw_paths[0])
+                _load_muv_dataset(self.dataset_path)
             for i in range(len(smiles_list)):
                 print(i)
                 rdkit_mol = rdkit_mol_objs[i]

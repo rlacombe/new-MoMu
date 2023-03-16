@@ -104,7 +104,8 @@ def main():
     parser.add_argument('--JK', type=str, default="last",
                         help='how the node features across layers are combined. last, sum, max or concat')
     parser.add_argument('--gnn_type', type=str, default="gin")
-    parser.add_argument('--dataset', type=str, default = 'tox21', help='root directory of dataset. For now, only classification.')
+    parser.add_argument('--dataset', type=str, default = 'tox21', help='Dataset name. For now, only classification.')
+    parser.add_argument('--dataset_path', type=str, default = '', help='path to dataset file.')
     parser.add_argument('--input_model_file', type=str, default = '', help='filename to read the model (if there is any)')
     parser.add_argument('--filename', type=str, default = '', help='output filename')
     parser.add_argument('--seed', type=int, default=42, help = "Seed for splitting the dataset.")
@@ -144,7 +145,7 @@ def main():
         raise ValueError("Invalid dataset name.")
 
     #set up dataset
-    dataset = MoleculeDataset("dataset/" + args.dataset, dataset=args.dataset)
+    dataset = MoleculeDataset("dataset/" + args.dataset, dataset=args.dataset, dataset_path=args.dataset_path)
 
     print(dataset)
 
@@ -215,10 +216,16 @@ def main():
 
         max_index = val_acc_list.index(max(val_acc_list))
         
+        if not os.path.exists('./checkpoint'):
+          os.makedirs('./checkpoint')
         torch.save(model.state_dict(), "./checkpoint/"+args.dataset+str(epoch)+".pth")
 
 
+    print(test_acc_list)
     with open('result.log', 'a+') as f:
+        print(test_acc_list)
+        print(test_acc_list[max_index])
+        f.write(str(test_acc_list))
         f.write(args.dataset + ' ' + str(args.runseed) + ' ' + str(test_acc_list[max_index]))
         f.write('\n')
 

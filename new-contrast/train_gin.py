@@ -16,6 +16,18 @@ from torch_geometric.data import LightningDataset
 from data_provider.pretrain_datamodule import GINPretrainDataModule
 from data_provider.pretrain_dataset import GINPretrainDataset
 
+def get_ckpt_folder_name_from_args(args):
+    # get the directory for the weights.
+    # we want the weights to be stored in the correct directory according to the experiment being run.
+    # TODO: Add type of graph and text encoder to args so that we don't have to hard code it in.
+    # doing this will allow us to save checkpoints to folders based on what experiments we're running.
+    graph_encoder = "gin"
+    text_encoder = "bert"
+    graph_augs = sorted([args.graph_aug1, args.graph_aug2])
+    sub_dir_path = f"{graph_encoder}-{text_encoder}/{graph_augs[0]}-{graph_augs[1]}" 
+    ckpt_folder_path = os.path.join("all_checkpoints/", sub_dir_path)
+    if not os.path.exists(ckpt_folder_path): os.makedirs(ckpt_folder_path)
+    return ckpt_folder_path
 
 def main(args):
     pl.seed_everything(args.seed)
@@ -42,14 +54,21 @@ def main(args):
     )
     print('total params:', sum(p.numel() for p in model.parameters()))
 
-    callbacks = []
-    callbacks.append(plc.ModelCheckpoint(dirpath="checkpoints/pretrain_gin/", every_n_epochs=1))
+    ckpt_dir_path = get_ckpt_folder_name_from_args(args)
+    ckpt_callback = plc.ModelCheckpoint(dirpath=ckpt_dir_path, every_n_epochs=5)
     strategy = pl.strategies.DDPSpawnStrategy(find_unused_parameters=False)
-    trainer = Trainer.from_argparse_args(args, callbacks=callbacks, strategy=strategy)
+    trainer = Trainer.from_argparse_args(args, callbacks=[ckpt_callback], strategy=strategy)
 
     trainer.fit(model, datamodule=dm)
+    
+    print(f"\n\nBest model checkpoint: {ckpt_callback.best_model_path}\n\n")
 
-
+    # Now, I'll actually delete the other checkpoints so we can save space.
+    for ckpt in os.listdir(ckpt_dir_path):
+        ckpt_path = os.path.join(os.path.abspath(ckpt_dir_path), ckpt)
+        if ckpt_path == ckpt_callback.best_model_path: continue
+        os.remove(ckpt_path)
+    os.rename(ckpt_callback.best_model_path, os.path.join(os.path.abspath(ckpt_dir_path), 'best-ckpt.ckpt'))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -69,11 +88,3 @@ if __name__ == '__main__':
     print(args)
 
     main(args)
-
-
-
-
-
-
-
-
