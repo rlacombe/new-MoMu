@@ -8,7 +8,7 @@ from torch.nn.utils.rnn import pad_sequence
 parser = argparse.ArgumentParser(description='Extract embeddings of molecules listed in a directory.')
 parser.add_argument('--directory', '-d', type=str, default='../../data/contrast-pretrain/S/text', help='The directory containing the text files')
 parser.add_argument('--names', '-n', type=str, default='../../data/cosine-sim/PubChem_synonyms_list.csv', help='The file containing the molecule names')
-
+parser.add_argument('--top_k', '-k', type=int, default=10, help='How many synonyms to use')
 args = parser.parse_args()
 
 # Specify path, initialize files and store results
@@ -17,6 +17,7 @@ files = os.listdir(dir_path)
 num_files = len(files)
 
 names_path = args.names
+top_k = args.top_k
 
 # Load pre-trained BERT model and tokenizer
 tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
@@ -46,11 +47,14 @@ for i, filename in enumerate(files):
         molecule_name = pubchem_synonyms_df.loc[pubchem_synonyms_df['cid'] == cid]['cmpdname'].iat[0]
         molecule_synonyms = pubchem_synonyms_df.loc[pubchem_synonyms_df['cid'] == cid]['cmpdsynonym'].iat[0].split('|')
     
-        if molecule_name not in molecule_synonyms:
-            synonyms = [molecule_name] + molecule_synonyms
-        else:
-            synonyms = molecule_synonyms
-             
+        #if molecule_name not in molecule_synonyms:
+        synonyms = [molecule_name] + molecule_synonyms
+        #else:
+        #    synonyms = molecule_synonyms
+
+        # Keep only the name + top k synonyms
+        synonyms = synonyms[:1+top_k]   
+
         name_tensors_list = []
 
         for n, name in enumerate(synonyms): 
@@ -79,7 +83,7 @@ for i, filename in enumerate(files):
             names_embeddings = model(names_tensor)[0][:, 0, :].to(device)
 
         # Compute mean along first dimension
-        query_vector = torch.mean(names_embeddings, dim=0)
+        query_vector = 0.5*names_embeddings[0]+0.5*torch.mean(names_embeddings[1:11], dim=0)
 
         # Save the results to a PT file
         torch.save(query_vector, f"query_mean_{cid}.pt")
