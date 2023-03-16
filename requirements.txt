@@ -1,0 +1,7 @@
+transformers 
+ogb
+pytorch_lightning 
+torch-geometric
+rdkit-pypi
+pubchempy
+tensorboardX
