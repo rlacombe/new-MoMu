@@ -7,16 +7,16 @@ import numpy as np
 import os
 import random
 from transformers import BertTokenizer
-from enum import Enum
+from enum import IntEnum
 
-class SamplingType(Enum):
-    CosSimMean: 0,
-    CosSimMax: 1,
-    CosSimSent: 2,
-    Random: 3
+class SamplingType(IntEnum):
+    CosSimMean = 0,
+    CosSimMax = 1,
+    CosSimSent = 2,
+    Random = 3
 
     @classmethod
-    def strToEnum(sampling_type: str):
+    def strToEnum(cls, sampling_type: str):
         if sampling_type == "random":
             return SamplingType.Random
         elif sampling_type == "cos_sim_mean":
@@ -70,20 +70,21 @@ class GINPretrainDataset(Dataset):
         for line in open(text_path, 'r', encoding='utf-8'):
             count += 1
             text_list.append(line)
-            if count > 500:
+            if count >= 500:
                 break
         # print(text_list)
         if len(text_list) < 2:
             two_text_list = [text_list[0], text_list[0][-self.text_max_len:]]
         else:
-            if sampling_type == SamplingType.Random:
+            if self.sampling_type == SamplingType.Random:
                 two_text_list = random.sample(text_list, 2)
             else:
                 # load the cosine similarity scores.
                 cos_sim_path = os.path.join(self.root, 'cosine_sim_score', self.cos_sim_score_name_list[index])
                 cos_sim_scores = torch.load(cos_sim_path)
-                cos_sim_scores = cos_sim_scores[self.sampling_type]  # This works b/c the cosine simliarity score enum values correspond to their index in the tensor
-                two_text_list = np.random.choice(text_list, 2, p=cos_sim_scores)
+                cos_sim_scores = cos_sim_scores[self.sampling_type].cpu().numpy()  # This works b/c the cosine simliarity score enum values correspond to their index in the tensor
+                smax_scores = np.exp(cos_sim_scores) / np.sum(np.exp(cos_sim_scores))
+                two_text_list = np.random.choice(text_list, 2, p=smax_scores)
         text_list.clear()
 
         # # load and process text
