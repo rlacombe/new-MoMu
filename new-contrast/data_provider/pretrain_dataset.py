@@ -7,19 +7,46 @@ import numpy as np
 import os
 import random
 from transformers import BertTokenizer
+from enum import Enum
 
+class SamplingType(Enum):
+    CosSimMean: 0,
+    CosSimMax: 1,
+    CosSimSent: 2,
+    Random: 3
+
+    @classmethod
+    def strToEnum(sampling_type: str):
+        if sampling_type == "random":
+            return SamplingType.Random
+        elif sampling_type == "cos_sim_mean":
+            return SamplingType.CosSimMean
+        elif sampling_type == "cos_sim_max":
+            return SamplingType.CosSimMax 
+        elif sampling_type == "cos_sim_sent":
+            return SamplingType.CosSimSent
+        else:
+            raise ValueError(f"Sampling type {sampling_type} is not supported. Supported values are: random, cos_sim_mean, cos_sim_max, cos_sim_sent")
 
 class GINPretrainDataset(Dataset):
-    def __init__(self, root, text_max_len, graph_aug1, graph_aug2):
+    def __init__(self, root, text_max_len, graph_aug1, graph_aug2, sampling_type):
         super(GINPretrainDataset, self).__init__(root)
         self.root = root
         self.graph_aug1 = graph_aug1
         self.graph_aug2 = graph_aug2
         self.text_max_len = text_max_len
-        self.graph_name_list = os.listdir(root+'graph/')
+
+        self.sampling_type = SamplingType.strToEnum(sampling_type)
+
+        # Get sorted file names
+        self.graph_name_list = os.listdir(root + 'graph/')
         self.graph_name_list.sort()
-        self.text_name_list = os.listdir(root+'text/')
+        self.text_name_list = os.listdir(root + 'text/')
         self.text_name_list.sort()
+
+        if sampling_type != SamplingType.Random:
+            self.cos_sim_score_name_list = os.listdir(root + 'cosine_sim_score/')
+            self.cos_sim_score_name_list.sort()
 
 
     def __len__(self):
@@ -27,6 +54,7 @@ class GINPretrainDataset(Dataset):
 
     def __getitem__(self, index):
         graph_name, text_name = self.graph_name_list[index], self.text_name_list[index]
+
         # load and process graph
         graph_path = os.path.join(self.root, 'graph', graph_name)
         data_graph = torch.load(graph_path)
@@ -48,7 +76,14 @@ class GINPretrainDataset(Dataset):
         if len(text_list) < 2:
             two_text_list = [text_list[0], text_list[0][-self.text_max_len:]]
         else:
-            two_text_list = random.sample(text_list, 2)
+            if sampling_type == SamplingType.Random:
+                two_text_list = random.sample(text_list, 2)
+            else:
+                # load the cosine similarity scores.
+                cos_sim_path = os.path.join(self.root, 'cosine_sim_score', self.cos_sim_score_name_list[index])
+                cos_sim_scores = torch.load(cos_sim_path)
+                cos_sim_scores = cos_sim_scores[self.sampling_type]  # This works b/c the cosine simliarity score enum values correspond to their index in the tensor
+                two_text_list = np.random.choice(text_list, 2, p=cos_sim_scores)
         text_list.clear()
 
         # # load and process text
