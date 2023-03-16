@@ -2,16 +2,23 @@ pip install -r requirements.txt
 pip install torch-scatter -f https://data.pyg.org/whl/torch-1.13.1+cu116.html
 pip install torch-sparse -f https://data.pyg.org/whl/torch-1.13.1+cu116.html
 
-# set up data.
-mkdir raw_data 
-mkdir -p raw_data/XL
+# set up data
+mkdir -p data/contrast-pretrain/XL
+mkdir -p models/pretrained_gin
+mkdir -p models/pretrained_bert
 
-mkdir -p raw_model/text
-mkdir -p raw_model/graph
+# download data
 python download_data.py
 
 # unzip data
-cd raw_data/contrastive_pretrain_data/xl/ 
-unzip raw_data/contrastive_pretrain_data/xl/text-clipped.zip
-unzip raw_data/contrastive_pretrain_data/xl/graph.zip
-cd ../../../
+cd data/contrast-pretrain/XL
+mkdir graph
+mv graph.zip graph/
+cd graph/
+unzip graph.zip
+cd ../
+mkdir text
+mv text-clipped.zip text/
+cd text/
+unzip text-clipped.zip
+cd ../../../../
