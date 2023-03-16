@@ -115,9 +115,9 @@ def get_molecule_embeddings(synonyms, tokenizer, model, device, max_bert_token_l
             continue
 
         # Convert tokens to tensor  
-        name_tensor = torch.tensor([tokenizer.convert_tokens_to_ids(name_tokens)]).int()
+        name_tensor = torch.tensor([tokenizer.convert_tokens_to_ids(name_tokens)]).int().to(device)
             
-        name_tensors_list.append(name_tensor.T)                
+        name_tensors_list.append(name_tensor.T)               
         #print(f"Done with synonym {n}.")
 
     # Pad and stack tensors along the batch dimension
@@ -162,7 +162,7 @@ def get_sentence_query_embeddings(synonyms, tokenizer, model, device, max_bert_t
         print("Error: empty synonyms list.") 
         
     # Convert tokens to tensor  
-    sentence_tensor = torch.tensor([tokenizer.convert_tokens_to_ids(sentence_tokens)]).int()  
+    sentence_tensor = torch.tensor([tokenizer.convert_tokens_to_ids(sentence_tokens)]).int().to(device)  
 
     # Get BERT embeddings for all the query sentence
     with torch.no_grad():
