@@ -145,7 +145,7 @@ def main():
         raise ValueError("Invalid dataset name.")
 
     #set up dataset
-    dataset = MoleculeDataset("dataset/" + args.dataset, dataset=args.dataset)
+    dataset = MoleculeDataset("dataset/" + args.dataset, dataset=args.dataset, dataset_path=args.dataset_path)
 
     print(dataset)
 
@@ -221,7 +221,11 @@ def main():
         torch.save(model.state_dict(), "./checkpoint/"+args.dataset+str(epoch)+".pth")
 
 
+    print(test_acc_list)
     with open('result.log', 'a+') as f:
+        print(test_acc_list)
+        print(test_acc_list[max_index])
+        f.write(str(test_acc_list))
         f.write(args.dataset + ' ' + str(args.runseed) + ' ' + str(test_acc_list[max_index]))
         f.write('\n')
 

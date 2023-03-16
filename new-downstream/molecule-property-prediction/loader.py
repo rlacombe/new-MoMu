@@ -13,7 +13,7 @@ from rdkit import DataStructs
 from rdkit.Chem.rdMolDescriptors import GetMorganFingerprintAsBitVect
 from torch.utils import data
 from torch_geometric.data import Data
-from torch_geometric.data import InMemoryDataset
+from torch_geometric.data import InMemoryDataset, Dataset
 from torch_geometric.data import Batch
 from itertools import repeat, product, chain
 
@@ -863,6 +863,7 @@ class MoleculeDataset(InMemoryDataset):
                  pre_transform=None,
                  pre_filter=None,
                  dataset='zinc250k',
+                 dataset_path=None,
                  empty=False):
         """
         Adapted from qm9.py. Disabled the download functionality
@@ -876,6 +877,7 @@ class MoleculeDataset(InMemoryDataset):
         initializing empty dataset
         """
         self.dataset = dataset
+        self.dataset_path = dataset_path
         self.root = root
 
         super(MoleculeDataset, self).__init__(root, transform, pre_transform,
@@ -1163,7 +1165,7 @@ class MoleculeDataset(InMemoryDataset):
 
         elif self.dataset == 'muv':
             smiles_list, rdkit_mol_objs, labels = \
-                _load_muv_dataset(self.raw_paths[0])
+                _load_muv_dataset(self.dataset_path)
             for i in range(len(smiles_list)):
                 print(i)
                 rdkit_mol = rdkit_mol_objs[i]
