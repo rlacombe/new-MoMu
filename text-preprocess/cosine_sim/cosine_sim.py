@@ -1,36 +1,6 @@
-import os
-import argparse
 import pandas as pd
 import torch
-from transformers import BertTokenizer, BertModel
 from torch.nn.utils.rnn import pad_sequence
-
-
-"""
-paragraph_embeds
--> returns a tensor of embeds for the paragraphs of a text
-
-molecule_embeds_mean
--> returns a tensor of mean embed of molecule names
-
-molecule_embeds_all
--> returns a tensor of all embeds of molecule names
-
-molecule_embeds_all
--> returns a tensor of all embeds of molecule names
-
-
-cosine_sim_single_key
--> returns a tensor of scores
-
-cosine_sim_max_keys
--> returns a tensor of scores with the max of each key
-
-
-script:
--> takes in args
--> writes out scores_{cid}.pt tensors + CSV to check visually
-"""
 
 
 def paragraph_embeds(text_file, tokenizer, model, device, max_para_length, max_bert_token_length):
@@ -115,6 +85,21 @@ def get_molecule_synonyms(cid, pubchem_synonyms_df, top_k=10):
 
 
 def get_molecule_embeds_mean(synonyms, tokenizer, model, device, max_bert_token_length, syn_weight=0.7):
+
+    """
+    Given a list of molecule synonyms, a tokenizer, a pre-trained language model, a device to run the model on, and a maximum length for the BERT tokens, returns the mean embedding of the molecule synonyms.
+
+    Args:
+        synonyms (List[str]): A list of molecule synonyms.
+        tokenizer (transformers.PreTrainedTokenizer): A tokenizer to tokenize the synonyms.
+        model (transformers.PreTrainedModel): A pre-trained language model to obtain embeddings.
+        device (torch.device): The device to run the model on.
+        max_bert_token_length (int): The maximum number of BERT tokens allowed.
+        syn_weight (float, optional): The weight to give to the remaining synonyms when computing the mean embedding. Defaults to 0.7.
+
+    Returns:
+        torch.Tensor: The mean embedding of the molecule synonyms.
+    """
 
     name_tensors_list = []
 
