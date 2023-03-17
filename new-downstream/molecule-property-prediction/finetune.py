@@ -191,6 +191,10 @@ def main():
     val_acc_list = []
     test_acc_list = []
 
+    ckpt_dir = os.path.join('checkpoints', os.path.dirname(args.input_model_file))
+    if not os.path.exists(ckpt_dir): os.makedirs(ckpt_dir)
+
+
 
     for epoch in range(1, args.epochs+1):
         print("====epoch " + str(epoch))
@@ -216,16 +220,18 @@ def main():
 
         max_index = val_acc_list.index(max(val_acc_list))
         
-        if not os.path.exists('./checkpoint'):
-          os.makedirs('./checkpoint')
-        torch.save(model.state_dict(), "./checkpoint/"+args.dataset+str(epoch)+".pth")
+    torch.save(model.state_dict(), os.path.join(ckpt_dir, args.dataset+str(epoch)+".pth"))
 
 
     print(test_acc_list)
-    with open('result.log', 'a+') as f:
+    result_dir = os.path.join('results', os.path.dirname(args.input_model_file))
+    if not os.path.exists(result_dir): os.makedirs(result_dir)
+    result_path = os.path.join(result_dir, f'{args.dataset}-result.txt')
+    with open(result_path, 'a+') as f:
         print(test_acc_list)
         print(test_acc_list[max_index])
         f.write(str(test_acc_list))
+        f.write('\n\n')
         f.write(args.dataset + ' ' + str(args.runseed) + ' ' + str(test_acc_list[max_index]))
         f.write('\n')
 
