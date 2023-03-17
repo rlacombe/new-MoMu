@@ -29,7 +29,7 @@ class SamplingType(IntEnum):
             raise ValueError(f"Sampling type {sampling_type} is not supported. Supported values are: random, cos_sim_mean, cos_sim_max, cos_sim_sent")
 
 class GINPretrainDataset(Dataset):
-    def __init__(self, root, text_max_len, graph_aug1, graph_aug2, sampling_type):
+    def __init__(self, root, text_max_len, graph_aug1, graph_aug2, sampling_type, sampling_temp, sampling_eps):
         super(GINPretrainDataset, self).__init__(root)
         self.root = root
         self.graph_aug1 = graph_aug1
@@ -37,6 +37,8 @@ class GINPretrainDataset(Dataset):
         self.text_max_len = text_max_len
 
         self.sampling_type = SamplingType.strToEnum(sampling_type)
+        self.sampling_temp = sampling_temp
+        self.sampling_eps = sampling_eps
 
         # Get sorted file names
         self.graph_name_list = os.listdir(root + 'graph/')
@@ -54,6 +56,8 @@ class GINPretrainDataset(Dataset):
 
     def __getitem__(self, index):
         graph_name, text_name = self.graph_name_list[index], self.text_name_list[index]
+        sampling_temp = self.sampling_temp
+        epsilon = self.sampling_eps
 
         # load and process graph
         graph_path = os.path.join(self.root, 'graph', graph_name)
@@ -79,12 +83,17 @@ class GINPretrainDataset(Dataset):
             if self.sampling_type == SamplingType.Random:
                 two_text_list = random.sample(text_list, 2)
             else:
-                # load the cosine similarity scores.
+                # Load the cosine similarity scores.
                 cos_sim_path = os.path.join(self.root, 'cosine_sim_score', self.cos_sim_score_name_list[index])
                 cos_sim_scores = torch.load(cos_sim_path)
                 cos_sim_scores = cos_sim_scores[self.sampling_type].cpu().numpy()  # This works b/c the cosine simliarity score enum values correspond to their index in the tensor
-                smax_scores = np.exp(cos_sim_scores) / np.sum(np.exp(cos_sim_scores))
-                two_text_list = np.random.choice(text_list, 2, p=smax_scores)
+                
+                # Apply epsilon sampling: https://arxiv.org/abs/2210.15191
+                cos_sim_scores /= sampling_temp 
+                cos_sim_scores =  np.where(cos_sim_scores < epsilon*(1/len(text_list)), 0, cos_sim_scores) 
+                smax_scores = np.exp(cos_sim_scores) / np.sum(np.exp(cos_sim_scores)) 
+                two_text_list = np.random.choice(text_list, 2, p=smax_scores) 
+                
         text_list.clear()
 
         # # load and process text
