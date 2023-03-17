@@ -26,7 +26,7 @@ def get_ckpt_folder_name_from_args(args):
     sampling_args = "-".join([str(args.sampling_type), str(args.sampling_temp), str(args.sampling_eps)])
     graph_augs = sorted([args.graph_aug1, args.graph_aug2])
     sub_dir_path = f"{graph_encoder}-{text_encoder}/{graph_augs[0]}-{graph_augs[1]}-{sampling_args}" 
-    ckpt_folder_path = os.path.join("all_checkpoints/", sub_dir_path)
+    ckpt_folder_path = os.path.join("checkpoints/", sub_dir_path)
     if not os.path.exists(ckpt_folder_path): os.makedirs(ckpt_folder_path)
     return ckpt_folder_path
 
