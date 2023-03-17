@@ -1,3 +1,7 @@
+NOTE: I had to comment out a line in torch\_geometric to get this to work; basically, it was the line in \_\_init\_\_ in the Dataset class where it checks if it should run self.\_download() or not. When it ran self.\_download(), it stupidly ran self.raw\_file\_names (you can see why if you trace code), and that triggers a NotImlpementedError in InMemoryDatset. I just set the chck to False so that self.\_downlad() would never run...
+
+
+
 # MoleculePrediction
  This repository contains the code of the downstream task (molecule property prediction) in the paper "Natural Language-informed Understanding of Molecule Graphs”
 

@@ -1,2 +1,7 @@
 data/
 models/
+
+new-downstream/molecule-property-prediction/checkpoint/
+new-downstream/molecule-property-prediction/dataset/
+
+*__pycache__*
