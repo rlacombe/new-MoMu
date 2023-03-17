@@ -90,7 +90,7 @@ class GINPretrainDataset(Dataset):
                 
                 # Apply epsilon sampling: https://arxiv.org/abs/2210.15191
                 cos_sim_scores /= sampling_temp 
-                cos_sim_scores =  np.where(cos_sim_scores < epsilon, 0, cos_sim_scores) 
+                cos_sim_scores =  np.where(cos_sim_scores < epsilon*(1/len(text_list)), 0, cos_sim_scores) 
                 smax_scores = np.exp(cos_sim_scores) / np.sum(np.exp(cos_sim_scores)) 
                 two_text_list = np.random.choice(text_list, 2, p=smax_scores) 
                 

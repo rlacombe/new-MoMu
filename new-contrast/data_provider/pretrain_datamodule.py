@@ -18,8 +18,8 @@ class GINPretrainDataModule(LightningDataModule):
         graph_aug1: str = 'dnodes',
         graph_aug2: str = 'subgraph',
         sampling_type: str = 'random',
-        sampling_temp: float = 0.5,
-        sampling_eps: float = 1.5e-2,
+        sampling_temp: float = .1,
+        sampling_eps: float = .5,
         *args,
         **kwargs,
     ):
