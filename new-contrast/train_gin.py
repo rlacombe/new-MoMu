@@ -23,8 +23,9 @@ def get_ckpt_folder_name_from_args(args):
     # doing this will allow us to save checkpoints to folders based on what experiments we're running.
     graph_encoder = "gin"
     text_encoder = "bert"
+    sampling_args = "-".join([str(args.sampling_type), str(args.sampling_temp), str(args.sampling_eps)])
     graph_augs = sorted([args.graph_aug1, args.graph_aug2])
-    sub_dir_path = f"{graph_encoder}-{text_encoder}/{graph_augs[0]}-{graph_augs[1]}" 
+    sub_dir_path = f"{graph_encoder}-{text_encoder}/{graph_augs[0]}-{graph_augs[1]}-{sampling_args}" 
     ckpt_folder_path = os.path.join("all_checkpoints/", sub_dir_path)
     if not os.path.exists(ckpt_folder_path): os.makedirs(ckpt_folder_path)
     return ckpt_folder_path
@@ -55,7 +56,7 @@ def main(args):
     print('total params:', sum(p.numel() for p in model.parameters()))
 
     ckpt_dir_path = get_ckpt_folder_name_from_args(args)
-    ckpt_callback = plc.ModelCheckpoint(dirpath=ckpt_dir_path, every_n_epochs=5)
+    ckpt_callback = plc.ModelCheckpoint(dirpath=ckpt_dir_path, every_n_epochs=1)
     strategy = pl.strategies.DDPSpawnStrategy(find_unused_parameters=False)
     trainer = Trainer.from_argparse_args(args, callbacks=[ckpt_callback], strategy=strategy)
 
@@ -87,4 +88,5 @@ if __name__ == '__main__':
     print('Args in experiment:')
     print(args)
 
+    
     main(args)

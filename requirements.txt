@@ -5,3 +5,4 @@ torch-geometric
 rdkit-pypi
 pubchempy
 tensorboardX
+torchvision==0.14.0

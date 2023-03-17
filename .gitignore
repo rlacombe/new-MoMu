@@ -4,4 +4,7 @@ models/
 new-downstream/molecule-property-prediction/checkpoint/
 new-downstream/molecule-property-prediction/dataset/
 
+new-contrast/gin_pretrained
+new-contrast/bert_pretrained
+
 *__pycache__*

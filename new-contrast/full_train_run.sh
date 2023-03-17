@@ -8,7 +8,7 @@ do
   do
     echo $temp
     echo $sampling_method
-    python train_gin.py --root='../data/contrast-pretrain/XL/' --batch_size=128 --accelerator='gpu' --gpus='1' --graph_self --max_epochs=30 --num_workers=12 --log_every_n_steps=10 --sampling_method=sampling_method --sampling_temp=temp --sampling_eps=0.5;
+    python train_gin.py --root='../data/contrast-pretrain/XL/' --batch_size=128 --accelerator='gpu' --gpus='1' --graph_self --max_epochs=2 --num_workers=1 --log_every_n_steps=10 --sampling_type=$sampling_method --sampling_temp=$temp --sampling_eps=0.5;
   done
 done
 
