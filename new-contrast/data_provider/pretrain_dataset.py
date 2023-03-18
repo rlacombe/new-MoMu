@@ -58,7 +58,8 @@ class GINPretrainDataset(Dataset):
     def __getitem__(self, index):
         graph_name, text_name = self.graph_name_list[index], self.text_name_list[index]
         sampling_temp = self.sampling_temp
-        epsilon = self.sampling_eps
+        sampling_k = self.sampling_k
+        sampling_len = self.sampling_len
 
         # load and process graph
         graph_path = os.path.join(self.root, 'graph', graph_name)
