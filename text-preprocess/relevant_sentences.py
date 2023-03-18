@@ -66,10 +66,15 @@ for i, filename in enumerate(files):
             if not relevant_sentences_list == []:
                 relevant_paragraphs_list.append(" ".join(relevant_sentences_list))
 
+        # If paragraph list is empty, just copy the file
+         with open(os.path.join(target_dir, filename), 'w') as target_file:
+            for paragraph in first_500_lines:
+                target_file.write(paragraph + '\n')
+
         # Create the target file
         with open(os.path.join(target_dir, filename), 'w') as target_file:
         
-            # Write the first 500 lines to the target file
+            # Write to the target file
             for paragraph in relevant_paragraphs_list:
                 target_file.write(paragraph + '\n')
 
