@@ -67,15 +67,13 @@ for i, filename in enumerate(files):
                 relevant_paragraphs_list.append(" ".join(relevant_sentences_list))
 
         # If paragraph list is empty, just copy the file
-        with open(os.path.join(target_dir, filename), 'w') as target_file:
-            for paragraph in first_500_lines:
-                target_file.write(paragraph + '\n')
-
-        # Create the target file
-        with open(os.path.join(target_dir, filename), 'w') as target_file:
-        
-            # Write to the target file
-            for paragraph in relevant_paragraphs_list:
-                target_file.write(paragraph + '\n')
+        if relevant_paragraphs_list == []:
+            with open(os.path.join(target_dir, filename), 'w') as target_file:
+                for paragraph in first_500_lines:
+                    target_file.write(paragraph + '\n')
+        else:  # Write to the target file
+            with open(os.path.join(target_dir, filename), 'w') as target_file:
+                for paragraph in relevant_paragraphs_list:
+                    target_file.write(paragraph + '\n')
 
         print(f"File {i+1} out of {len(files)}.")
