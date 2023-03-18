@@ -23,7 +23,7 @@ def get_ckpt_folder_name_from_args(args):
     # doing this will allow us to save checkpoints to folders based on what experiments we're running.
     graph_encoder = "gin"
     text_encoder = "bert"
-    sampling_args = "-".join([str(args.sampling_type), str(args.sampling_temp), str(args.sampling_eps)])
+    sampling_args = "-".join([str(args.sampling_type), str(args.sampling_temp)])
     graph_augs = sorted([args.graph_aug1, args.graph_aug2])
     sub_dir_path = f"{graph_encoder}-{text_encoder}/{graph_augs[0]}-{graph_augs[1]}-{sampling_args}" 
     ckpt_folder_path = os.path.join("checkpoints/", sub_dir_path)

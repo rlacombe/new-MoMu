@@ -19,14 +19,15 @@ class GINPretrainDataModule(LightningDataModule):
         graph_aug2: str = 'subgraph',
         sampling_type: str = 'random',
         sampling_temp: float = 1,
-        sampling_eps: float = 0.1,
+        sampling_k: int = 60,
+        sampling_len: int = 256,
         *args,
         **kwargs,
     ):
         super().__init__(*args, **kwargs)
         self.batch_size = batch_size
         self.num_workers = num_workers
-        self.dataset = GINPretrainDataset(root, text_max_len, graph_aug1, graph_aug2, sampling_type, sampling_temp, sampling_eps)
+        self.dataset = GINPretrainDataset(root, text_max_len, graph_aug1, graph_aug2, sampling_type, sampling_temp, sampling_k, sampling_len)
 
     def setup(self, stage: str = None):
         self.train_dataset = self.dataset

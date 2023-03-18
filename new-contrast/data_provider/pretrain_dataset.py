@@ -195,7 +195,7 @@ class GINPretrainDataset(Dataset):
 
 if __name__ == '__main__':
     mydataset = GINPretrainDataset(root='data/', text_max_len=512, graph_aug1='dnodes', graph_aug2='subgraph', \
-                                   sampling_type='random', sampling_temp=1, sampling_k=60, sampling_len=256)
+                                   sampling_type='random', sampling_temp=1)
     train_loader = torch_geometric.loader.DataLoader(
             mydataset,
             batch_size=32,
