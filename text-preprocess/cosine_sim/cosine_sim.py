@@ -3,7 +3,7 @@ import torch
 from torch.nn.utils.rnn import pad_sequence
 
 
-def get_paragraph_embeds(text_file, tokenizer, model, device, max_para_length, max_bert_token_length):
+def get_paragraph_embeds(text_file, tokenizer, model, device, max_bert_token_length):
 
     """
     Given a text file containing paragraphs, this method tokenizes each paragraph, converts the tokens to a PyTorch tensor,
@@ -31,7 +31,7 @@ def get_paragraph_embeds(text_file, tokenizer, model, device, max_para_length, m
         for l, paragraph in enumerate(paragraphs): 
 
             # Tokenize paragraph
-            paragraph_tokens = tokenizer.tokenize(paragraph[:max_para_length])  # 'TODO' Model loads only first 256 words
+            paragraph_tokens = tokenizer.tokenize(paragraph)  # Tokenizing the entire paragraph
             paragraph_tokens = paragraph_tokens[:max_bert_token_length]
 
             # Check if document_tokens is empty
@@ -154,8 +154,9 @@ def get_sentence_query_embeddings(synonyms, tokenizer, model, device, max_bert_t
     """
     
     synonyms_str = ', '.join(synonyms[1:-1])
-    sentence = f"Molecular, chemical, electrochemical, physical, quantum mechanical, biochemical, biological, medical and physiological properties,\
-                characteristics, and applications of {synonyms[0]}, a compound also known as {synonyms_str} or {synonyms[-1]}."
+    sentence = f"Molecular, chemical, electrochemical, quantum physical, biochemical, biological, thermodynamic and metabolic properties \
+                of {synonyms[0]}, as well as reactants, products, catalysts, enzymes, by-products, or reactions involving the molecule \
+                {synonyms[0]} also known as {synonyms_str}, or {synonyms[-1]}."
 
     # Tokenize paragraph
     sentence_tokens = tokenizer.tokenize(sentence)

@@ -44,7 +44,6 @@ syn_weight = args.weight
 tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 model = BertModel.from_pretrained('bert-base-uncased')
 
-max_para_length = 256 
 max_bert_token_length = 512
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -73,7 +72,7 @@ for i, text_filename in progress_bar:
 
         # Retrieve paragraph embeddings
         paragraph_embeddings = cs.get_paragraph_embeds(os.path.join(text_dir, text_filename), \
-                                        tokenizer, model, device, max_para_length, max_bert_token_length)
+                                        tokenizer, model, device, max_bert_token_length)
         
         # Load the molecule names
         synonyms = cs.get_molecule_synonyms(cid, pubchem_synonyms_df, top_k=top_k)
