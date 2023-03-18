@@ -78,7 +78,7 @@ class GINPretrainDataset(Dataset):
                 break
         # print(text_list)
         if len(text_list) < 2:
-            two_text_list = [text_list[0], text_list[0][-self.text_max_len:]]
+            two_text_list = [text_list[0], text_list[0][self.text_max_len:2*self.text_max_len]]
         else:
             if self.sampling_type == SamplingType.Random:
                 two_text_list = random.sample(text_list, 2)
@@ -96,23 +96,11 @@ class GINPretrainDataset(Dataset):
                 
         text_list.clear()
 
-        # # load and process text
-        # text_path = os.path.join(self.root, 'text', text_name)
-        # with open(text_path, 'r', encoding='utf-8') as f:
-        #     text_list = f.readlines()
-        # f.close()
-        # # print(text_list)
-        # if len(text_list) < 2:
-        #     two_text_list = [text_list[0], text_list[0][-self.text_max_len:]]
-        # else:
-        #     two_text_list = random.sample(text_list, 2)
-        # text_list.clear()
-
-        # print(random.sample([1,2,3,4,5,6,7,8,9,0,11,12,13,14,15,18],2))
-        if len(two_text_list[0]) > 256:
-            two_text_list[0] = two_text_list[0][:256]
-        if len(two_text_list[1]) > 256:
-            two_text_list[1] = two_text_list[1][:256]        
+        # Don't truncate the text to 256 tokens anymore!
+        # if len(two_text_list[0]) > 256:
+        #     two_text_list[0] = two_text_list[0][:256]
+        # if len(two_text_list[1]) > 256:
+        #     two_text_list[1] = two_text_list[1][:256]        
         text1, mask1 = self.tokenizer_text(two_text_list[0])
         text2, mask2 = self.tokenizer_text(two_text_list[1])
 
@@ -199,37 +187,7 @@ class GINPretrainDataset(Dataset):
 
 
 if __name__ == '__main__':
-    # mydataset = GraphTextDataset()
-    # train_loader = torch_geometric.loader.DataLoader(
-    #     mydataset,
-    #     batch_size=16,
-    #     shuffle=True,
-    #     num_workers=4
-    # )
-    # for i, (aug1, aug2, text1, mask1, text2, mask2) in enumerate(train_loader):
-    #     print(aug1.edge_index.shape)
-    #     print(aug1.x.shape)
-    #     print(aug1.ptr.size(0))
-    #     print(aug2.edge_index.dtype)
-    #     print(aug2.x.dtype)
-    #     print(text1.shape)
-    #     print(mask1.shape)
-    #     print(text2.shape)
-    #     print(mask2.shape)
-    # mydataset = GraphormerPretrainDataset(root='data/', text_max_len=128, graph_aug1='dnodes', graph_aug2='subgraph')
-    # from functools import partial
-    # from data_provider.collator import collator_text
-    # train_loader = torch.utils.data.DataLoader(
-    #         mydataset,
-    #         batch_size=8,
-    #         num_workers=4,
-    #         collate_fn=partial(collator_text,
-    #                            max_node=128,
-    #                            multi_hop_max_dist=5,
-    #                            spatial_pos_max=1024),
-    #     )
-    # aug1, aug2, text1, mask1, text2, mask2 = mydataset[0]
-    mydataset = GINPretrainDataset(root='data/', text_max_len=128, graph_aug1='dnodes', graph_aug2='subgraph')
+    mydataset = GINPretrainDataset(root='data/', text_max_len=512, graph_aug1='dnodes', graph_aug2='subgraph')
     train_loader = torch_geometric.loader.DataLoader(
             mydataset,
             batch_size=32,

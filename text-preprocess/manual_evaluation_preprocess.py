@@ -6,7 +6,7 @@ def process_file(infile_path):
   outfile_str = list()
   with open(infile_path, 'r') as f:
     for i, para in enumerate(f.readlines()):
-      para = para[:256] 
+      para = " ".join(para.split()[:330]) 
       outfile_str.append("-"*80)
       outfile_str.append("i: {} {}".format(i, para))
   outfile_str = "\n".join(outfile_str)
