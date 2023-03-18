@@ -55,7 +55,7 @@ def get_paragraph_embeds(text_file, tokenizer, model, device, max_bert_token_len
     return paragraph_embeddings
 
 
-def get_molecule_synonyms(cid, pubchem_synonyms_df, top_k=10):
+def get_molecule_synonyms(cid, pubchem_synonyms_df, top_k=20):
 
     """
     Given a compound identifier (cid) and a pandas DataFrame of PubChem synonyms for compounds (pubchem_synonyms_df),
