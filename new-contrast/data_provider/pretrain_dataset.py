@@ -29,7 +29,7 @@ class SamplingType(IntEnum):
             raise ValueError(f"Sampling type {sampling_type} is not supported. Supported values are: random, cos_sim_mean, cos_sim_max, cos_sim_sent")
 
 class GINPretrainDataset(Dataset):
-    def __init__(self, root, text_max_len, graph_aug1, graph_aug2, sampling_type, sampling_temp, sampling_k, sampling_len):
+    def __init__(self, root, text_max_len, graph_aug1, graph_aug2, sampling_type, sampling_temp, sampling_k):
         super(GINPretrainDataset, self).__init__(root)
         self.root = root
         self.graph_aug1 = graph_aug1
@@ -39,7 +39,6 @@ class GINPretrainDataset(Dataset):
         self.sampling_type = SamplingType.strToEnum(sampling_type)
         self.sampling_temp = sampling_temp
         self.sampling_k = sampling_k
-        self.sampling_len = sampling_len
 
         # Get sorted file names
         self.graph_name_list = os.listdir(root + 'graph/')
@@ -59,7 +58,6 @@ class GINPretrainDataset(Dataset):
         graph_name, text_name = self.graph_name_list[index], self.text_name_list[index]
         sampling_temp = self.sampling_temp
         sampling_k = self.sampling_k
-        sampling_len = self.sampling_len
 
         # load and process graph
         graph_path = os.path.join(self.root, 'graph', graph_name)
@@ -91,23 +89,13 @@ class GINPretrainDataset(Dataset):
                 cos_sim_scores = cos_sim_scores[self.sampling_type].cpu().numpy()  # This works b/c the cosine simliarity score enum values correspond to their index in the tensor
                 
                 # Apply top-k sampling and temperature
-                smax_sim_scores = [np.exp(score/self.sampling_temp) for score in cos_sim_scores] # Temperature
-                smax_norm = sum(smax_sim_scores) 
-                smax_sim_scores = [score/smax_norm for score in smax_sim_scores] # Softmax
-                cutoff_scores = sorted(smax_sim_scores, reverse=True)[:self.sampling_k] # Keep only the top-k scores
-                cutoff_norm = sum(cutoff_scores)
-                smax_scores = [score/cutoff_norm if score in cutoff_scores else 0 for score in smax_sim_scores] # Replace scores below cutoff with 0
-                
-                # Sample text based on score
+                smax_sim_scores = np.exp(np.array(cos_sim_scores)/self.sampling_temp)
+                smax_sim_scores /= np.sum(smax_sim_scores) # Softmax
+                smax_scores = np.where(smax_sim_scores >= np.sort(smax_sim_scores)[-self.sampling_k], smax_sim_scores, 0)
+                smax_scores /= np.sum(smax_scores)
                 two_text_list = np.random.choice(text_list, 2, p=smax_scores) 
                 
         text_list.clear()
-
-        # Truncate the text to the sampling context length
-        if len(two_text_list[0]) > self.sampling_len:
-            two_text_list[0] = two_text_list[0][:self.sampling_len]
-        if len(two_text_list[1]) > self.sampling_len:
-            two_text_list[1] = two_text_list[1][:self.sampling_len]  
 
         text1, mask1 = self.tokenizer_text(two_text_list[0])
         text2, mask2 = self.tokenizer_text(two_text_list[1])
@@ -189,14 +177,13 @@ class GINPretrainDataset(Dataset):
                                    max_length=self.text_max_len,
                                    return_tensors='pt',
                                    return_attention_mask=True)
-        input_ids = sentence_token['input_ids']  # [176,398,1007,0,0,0]
-        attention_mask = sentence_token['attention_mask']  # [1,1,1,0,0,0]
+        input_ids = sentence_token['input_ids'][:512]   # [176,398,1007,0,0,0]
+        attention_mask = sentence_token['attention_mask'][:512]  # [1,1,1,0,0,0]
         return input_ids, attention_mask
 
 
 if __name__ == '__main__':
-    mydataset = GINPretrainDataset(root='data/', text_max_len=512, graph_aug1='dnodes', graph_aug2='subgraph', \
-                                   sampling_type='random', sampling_temp=1)
+    mydataset = GINPretrainDataset(root='data/', text_max_len=512, graph_aug1='dnodes', graph_aug2='subgraph')
     train_loader = torch_geometric.loader.DataLoader(
             mydataset,
             batch_size=32,
