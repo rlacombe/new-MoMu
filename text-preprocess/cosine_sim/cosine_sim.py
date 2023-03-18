@@ -31,7 +31,7 @@ def get_paragraph_embeds(text_file, tokenizer, model, device, max_bert_token_len
         for l, paragraph in enumerate(paragraphs): 
 
             # Tokenize paragraph
-            paragraph_tokens = tokenizer.tokenize(paragraph)  # Tokenizing the entire paragraph
+            paragraph_tokens = tokenizer.tokenize(paragraph[:max_bert_token_length])  # Tokenizing the entire paragraph
             paragraph_tokens = paragraph_tokens[:max_bert_token_length]
 
             # Check if document_tokens is empty
