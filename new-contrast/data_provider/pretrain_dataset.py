@@ -47,7 +47,7 @@ class GINPretrainDataset(Dataset):
         self.text_name_list = os.listdir(root + 'text/')
         self.text_name_list.sort()
 
-        if sampling_type != SamplingType.Random:
+        if self.sampling_type != SamplingType.Random:
             self.cos_sim_score_name_list = os.listdir(root + 'cosine_sim_score/')
             self.cos_sim_score_name_list.sort()
 
