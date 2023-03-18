@@ -28,6 +28,8 @@ parser.add_argument('--filetype', '-f', type=str, default="both", help='Formats 
 parser.add_argument('--method', '-m', type=str, default="all", help='Method with which to compute the scores (mean|max|sent|all)')
 parser.add_argument('--top_k', '-k', type=int, default=20,  help='Number of top-k synonyms to compute cosine similarity (default: 20)')
 parser.add_argument('--weight', '-w', type=int, default=0.8,  help='Weight given to synonyms vs main name (default: 0.8)')
+parser.add_argument('--len', '-l', type=int, default=1024,  help='Context length (default: 1024)')
+
 
 args = parser.parse_args()
 
@@ -39,6 +41,7 @@ filetype = args.filetype
 method = args.method
 top_k = args.top_k
 syn_weight = args.weight
+context_len = args.len
 
 # Load pre-trained BERT model and tokenizer on device
 tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
@@ -72,7 +75,7 @@ for i, text_filename in progress_bar:
 
         # Retrieve paragraph embeddings
         paragraph_embeddings = cs.get_paragraph_embeds(os.path.join(text_dir, text_filename), \
-                                        tokenizer, model, device, max_bert_token_length)
+                                        tokenizer, model, device, max_bert_token_length, context_len)
         
         # Load the molecule names
         synonyms = cs.get_molecule_synonyms(cid, pubchem_synonyms_df, top_k=top_k)

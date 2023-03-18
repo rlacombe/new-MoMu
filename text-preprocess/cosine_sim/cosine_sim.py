@@ -3,7 +3,7 @@ import torch
 from torch.nn.utils.rnn import pad_sequence
 
 
-def get_paragraph_embeds(text_file, tokenizer, model, device, max_bert_token_length):
+def get_paragraph_embeds(text_file, tokenizer, model, device, max_bert_token_length, context_len):
 
     """
     Given a text file containing paragraphs, this method tokenizes each paragraph, converts the tokens to a PyTorch tensor,
@@ -31,8 +31,8 @@ def get_paragraph_embeds(text_file, tokenizer, model, device, max_bert_token_len
         for l, paragraph in enumerate(paragraphs): 
 
             # Tokenize paragraph
-            paragraph_tokens = tokenizer.tokenize(paragraph[:max_bert_token_length])  # Tokenizing the entire paragraph
-            paragraph_tokens = paragraph_tokens[:max_bert_token_length]
+            paragraph_tokens = tokenizer.tokenize(paragraph[:context_len])  # Tokenizing the entire paragraph (dim: chars)
+            paragraph_tokens = paragraph_tokens[:max_bert_token_length] # Max BERT token size (dim: tokens)
 
             # Check if document_tokens is empty
             if len(paragraph_tokens) == 0:
