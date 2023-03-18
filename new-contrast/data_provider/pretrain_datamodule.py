@@ -39,7 +39,7 @@ class GINPretrainDataModule(LightningDataModule):
             num_workers=self.num_workers,
             pin_memory=False,
             drop_last=True,
-            # persistent_workers = True
+            persistent_workers = True
         )
         print('len(train_dataloader)', len(loader))
         return loader

@@ -29,7 +29,7 @@ class SamplingType(IntEnum):
             raise ValueError(f"Sampling type {sampling_type} is not supported. Supported values are: random, cos_sim_mean, cos_sim_max, cos_sim_sent")
 
 class GINPretrainDataset(Dataset):
-    def __init__(self, root, text_max_len, graph_aug1, graph_aug2, sampling_type, sampling_temp, sampling_eps):
+    def __init__(self, root, text_max_len, graph_aug1, graph_aug2, sampling_type, sampling_temp, sampling_k, sampling_len):
         super(GINPretrainDataset, self).__init__(root)
         self.root = root
         self.graph_aug1 = graph_aug1
@@ -38,7 +38,8 @@ class GINPretrainDataset(Dataset):
 
         self.sampling_type = SamplingType.strToEnum(sampling_type)
         self.sampling_temp = sampling_temp
-        self.sampling_eps = sampling_eps
+        self.sampling_k = sampling_k
+        self.sampling_len = sampling_len
 
         # Get sorted file names
         self.graph_name_list = os.listdir(root + 'graph/')
@@ -88,19 +89,25 @@ class GINPretrainDataset(Dataset):
                 cos_sim_scores = torch.load(cos_sim_path)
                 cos_sim_scores = cos_sim_scores[self.sampling_type].cpu().numpy()  # This works b/c the cosine simliarity score enum values correspond to their index in the tensor
                 
-                # Apply epsilon sampling: https://arxiv.org/abs/2210.15191
-                cos_sim_scores /= sampling_temp 
-                cos_sim_scores =  np.where(cos_sim_scores < epsilon*(1/len(text_list)), 0, cos_sim_scores) 
-                smax_scores = np.exp(cos_sim_scores) / np.sum(np.exp(cos_sim_scores)) 
+                # Apply top-k sampling and temperature
+                smax_sim_scores = [np.exp(score/self.sampling_temp) for score in cos_sim_scores] # Temperature
+                smax_norm = sum(smax_sim_scores) 
+                smax_sim_scores = [score/smax_norm for score in smax_sim_scores] # Softmax
+                cutoff_scores = sorted(smax_sim_scores, reverse=True)[:self.sampling_k] # Keep only the top-k scores
+                cutoff_norm = sum(cutoff_scores)
+                smax_scores = [score/cutoff_norm if score in cutoff_scores else 0 for score in smax_sim_scores] # Replace scores below cutoff with 0
+                
+                # Sample text based on score
                 two_text_list = np.random.choice(text_list, 2, p=smax_scores) 
                 
         text_list.clear()
 
-        # Don't truncate the text to 256 tokens anymore!
-        # if len(two_text_list[0]) > 256:
-        #     two_text_list[0] = two_text_list[0][:256]
-        # if len(two_text_list[1]) > 256:
-        #     two_text_list[1] = two_text_list[1][:256]        
+        # Truncate the text to the sampling context length
+        if len(two_text_list[0]) > self.sampling_len:
+            two_text_list[0] = two_text_list[0][:self.sampling_len]
+        if len(two_text_list[1]) > self.sampling_len:
+            two_text_list[1] = two_text_list[1][:self.sampling_len]  
+
         text1, mask1 = self.tokenizer_text(two_text_list[0])
         text2, mask2 = self.tokenizer_text(two_text_list[1])
 
@@ -187,7 +194,8 @@ class GINPretrainDataset(Dataset):
 
 
 if __name__ == '__main__':
-    mydataset = GINPretrainDataset(root='data/', text_max_len=512, graph_aug1='dnodes', graph_aug2='subgraph')
+    mydataset = GINPretrainDataset(root='data/', text_max_len=512, graph_aug1='dnodes', graph_aug2='subgraph', \
+                                   sampling_type='random', sampling_temp=1, sampling_k=60, sampling_len=256)
     train_loader = torch_geometric.loader.DataLoader(
             mydataset,
             batch_size=32,
