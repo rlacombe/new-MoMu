@@ -92,7 +92,8 @@ class GINPretrainDataset(Dataset):
                 # Apply top-k sampling and temperature
                 smax_sim_scores = np.exp(np.array(cos_sim_scores)/self.sampling_temp)
                 smax_sim_scores /= np.sum(smax_sim_scores) # Softmax
-                smax_scores = np.where(smax_sim_scores >= np.sort(smax_sim_scores)[-self.sampling_k], smax_sim_scores, 0)
+                if self.sampling_k <= len(smax_sim_scores): # If more than k paragraphs
+                    smax_scores = np.where(smax_sim_scores >= np.sort(smax_sim_scores)[-self.sampling_k], smax_sim_scores, 0)
                 smax_scores /= np.sum(smax_scores)
                 two_text_list = np.random.choice(text_list, 2, p=smax_scores) 
                 
