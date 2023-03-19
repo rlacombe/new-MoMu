@@ -115,7 +115,7 @@ class GINPretrainDataset(Dataset):
         if graph_aug == 'id':
             data_aug = deepcopy(data)
         elif graph_aug == 'chem':
-            data_aug = methylation(deepcopy(data))        
+            data_aug = mol.methylation(deepcopy(data))        
         elif graph_aug == 'dnodes':
             data_aug = drop_nodes(deepcopy(data))
         elif graph_aug == 'pedges':
