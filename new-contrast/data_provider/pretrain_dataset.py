@@ -8,6 +8,7 @@ import os
 import random
 from transformers import BertTokenizer
 from enum import IntEnum
+import utils.molecular_augmentations as mol
 
 class SamplingType(IntEnum):
     CosSimMean = 0,
@@ -126,7 +127,11 @@ class GINPretrainDataset(Dataset):
         # sl = torch.tensor([[n, n] for n in range(node_num)]).t()
         # data.edge_index = torch.cat((data.edge_index, sl), dim=1)
 
-        if graph_aug == 'dnodes':
+        if graph_aug == 'id':
+            data_aug = deepcopy(data)
+        elif graph_aug == 'chem':
+            data_aug = mol.methylation(deepcopy(data)) 
+        elif graph_aug == 'dnodes':
             data_aug = drop_nodes(deepcopy(data))
         elif graph_aug == 'pedges':
             data_aug = permute_edges(deepcopy(data))
