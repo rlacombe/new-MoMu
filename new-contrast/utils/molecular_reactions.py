@@ -1,8 +1,8 @@
 import torch
 import numpy as np
 import torch_geometric.data 
-import torch_geometric.utils 
-import networkx 
+from torch_geometric.utils import to_networkx, from_networkx
+import networkx as nx
 
 
 def methylation(data):
@@ -17,12 +17,13 @@ def methylation(data):
     """
 
     # Turn PyG graph into NetworkX graph
-    G = to_networkx(data, node_attrs=["x"], edge_attrs=["edge_attr"])
+    G = nx.to_networkx(data, node_attrs=["x"], edge_attrs=["edge_attr"])
+    print(G.edges[0,1])
 
     # Find the index of the node with the desired feature value
     target_index = None
-    for i in range(G.num_nodes):
-        if G.x[i][4] > 0: # 'NOTE' this means the atom has a least one implicit H
+    for i in range(G.number_of_nodes()):
+        if G.nodes[i]['x'][4] > 0: # 'NOTE' this means the atom has a least one implicit H
             target_index = i
             break
 
@@ -31,18 +32,18 @@ def methylation(data):
         new_node_features = {
             'x': torch.tensor([5, 0, 4, 5, 3, 0, 2, 0, 0]),  # C atom with 3 H (-CH3 radical)
         }
-        new_node_index = G.num_nodes  # Index of the new node
-        G.add_nodes(1, **new_node_features)
+        new_node_index = G.number_of_nodes()  # Index of the new node
+        G.add_node(new_node_index, **new_node_features)
 
         # Add an edge between the new node and the target node
-        edge_index = torch.tensor([[new_node_index, target_index]], dtype=torch.long)
-        new_node_features = {
+        #edge_index = torch.tensor([[new_node_index, target_index]], dtype=torch.long)
+        new_edge_features = {
             'edge_attr': torch.tensor([1, 0, 0]),  # single bond in -CH3
         }
-        G.add_edges(edge_index.t(), **new_edge_features)
+        G.add_edge(new_node_index, target_index, **new_edge_features)
 
     # Return PyG graph
-    data = from_networkx(G)
+    data = nx.from_networkx(G)
     return data
 
 
