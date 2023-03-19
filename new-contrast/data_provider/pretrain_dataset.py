@@ -187,33 +187,6 @@ class GINPretrainDataset(Dataset):
         attention_mask = sentence_token['attention_mask'][:512]  # [1,1,1,0,0,0]
         return input_ids, attention_mask
 
-    def chem_aumgent(self, data):
-        """Applies a random data augmentation to a molecular graph"""
-        # choose one from all chem augmentations
-        
-        augmentations = [methylation, saturation, augmentation_3, augmentation_4]
-        random.shuffle(augmentations)
-        for augmentation in augmentations:
-            augmented_graph = augmentation(graph)
-        if is_valid_graph(augmented_graph):
-            return augmented_graph
-    # If none of the augmentations produced a valid graph, return the original graph
-    return graph 
-
-
-            n = np.random.randint(4) 
-                if n == 0:
-                data_aug = chem_saturate_bond(deepcopy(data))
-            elif n == 1:
-                data_aug = chem_methylate(deepcopy(data))
-            elif n ==
-            else:
-                print('sample error')
-                assert False
-
-
-
-
 if __name__ == '__main__':
     mydataset = GINPretrainDataset(root='data/', text_max_len=512, graph_aug1='dnodes', graph_aug2='subgraph')
     train_loader = torch_geometric.loader.DataLoader(
