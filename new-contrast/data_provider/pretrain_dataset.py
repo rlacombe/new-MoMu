@@ -109,10 +109,10 @@ class GINPretrainDataset(Dataset):
         # text_list.clear()
 
         # print(random.sample([1,2,3,4,5,6,7,8,9,0,11,12,13,14,15,18],2))
-        if len(two_text_list[0]) > 256:
-            two_text_list[0] = two_text_list[0][:256]
-        if len(two_text_list[1]) > 256:
-            two_text_list[1] = two_text_list[1][:256]        
+        #if len(two_text_list[0]) > 256:
+        #    two_text_list[0] = two_text_list[0][:256]
+        #if len(two_text_list[1]) > 256:
+        #    two_text_list[1] = two_text_list[1][:256]        
         text1, mask1 = self.tokenizer_text(two_text_list[0])
         text2, mask2 = self.tokenizer_text(two_text_list[1])
 
@@ -193,8 +193,8 @@ class GINPretrainDataset(Dataset):
                                    max_length=self.text_max_len,
                                    return_tensors='pt',
                                    return_attention_mask=True)
-        input_ids = sentence_token['input_ids']  # [176,398,1007,0,0,0]
-        attention_mask = sentence_token['attention_mask']  # [1,1,1,0,0,0]
+        input_ids = sentence_token['input_ids'][:512]  # [176,398,1007,0,0,0]
+        attention_mask = sentence_token['attention_mask'][:512]  # [1,1,1,0,0,0]
         return input_ids, attention_mask
 
 
