@@ -18,7 +18,6 @@ def methylation(data):
 
     # Turn PyG graph into NetworkX graph
     G = to_networkx(data, node_attrs=["x"], edge_attrs=["edge_attr"])
-    print(G.edges[0,1])
 
     # Find the index of the node with the desired feature value
     target_index = None
