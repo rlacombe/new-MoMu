@@ -127,6 +127,8 @@ class GINPretrainDataset(Dataset):
         # sl = torch.tensor([[n, n] for n in range(node_num)]).t()
         # data.edge_index = torch.cat((data.edge_index, sl), dim=1)
 
+        return mol.methylation(deepcopy(data)) # 'TODO' hacky, pls fix
+
         if graph_aug == 'id':
             data_aug = deepcopy(data)
         elif graph_aug == 'chem':
