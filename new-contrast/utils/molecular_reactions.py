@@ -1,8 +1,8 @@
 import torch
 import numpy as np
-import torch_geometric.data 
+from networkx import *
 from torch_geometric.utils import to_networkx, from_networkx
-import networkx as nx
+
 
 
 def methylation(data):
@@ -17,7 +17,7 @@ def methylation(data):
     """
 
     # Turn PyG graph into NetworkX graph
-    G = nx.to_networkx(data, node_attrs=["x"], edge_attrs=["edge_attr"])
+    G = to_networkx(data, node_attrs=["x"], edge_attrs=["edge_attr"])
     print(G.edges[0,1])
 
     # Find the index of the node with the desired feature value
@@ -43,7 +43,7 @@ def methylation(data):
         G.add_edge(new_node_index, target_index, **new_edge_features)
 
     # Return PyG graph
-    data = nx.from_networkx(G)
+    data = from_networkx(G)
     return data
 
 
