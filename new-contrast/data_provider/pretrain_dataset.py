@@ -78,7 +78,7 @@ class GINPretrainDataset(Dataset):
                 break
         # print(text_list)
         if len(text_list) < 2:
-            two_text_list = [text_list[0], text_list[0][self.text_max_len:2*self.text_max_len]]
+            two_text_list = [text_list[0], text_list[0][:2 * self.text_max_len]]
         else:
             if self.sampling_type == SamplingType.Random:
                 two_text_list = random.sample(text_list, 2)
@@ -86,16 +86,25 @@ class GINPretrainDataset(Dataset):
                 # Load the cosine similarity scores.
                 cos_sim_path = os.path.join(self.root, 'cosine_sim_score', self.cos_sim_score_name_list[index])
                 cos_sim_scores = torch.load(cos_sim_path)
-                cos_sim_scores = cos_sim_scores[self.sampling_type].cpu().numpy()  # This works b/c the cosine simliarity score enum values correspond to their index in the tensor
-                
+                cos_sim_scores = cos_sim_scores[
+                    self.sampling_type].cpu().numpy()  # This works b/c the cosine simliarity score enum values correspond to their index in the tensor
+
                 # Apply top-k sampling and temperature
-                smax_sim_scores = np.exp(np.array(cos_sim_scores)/self.sampling_temp)
-                smax_sim_scores /= np.sum(smax_sim_scores) # Softmax
-                if self.sampling_k <= len(smax_sim_scores): # If more than k paragraphs
-                    smax_scores = np.where(smax_sim_scores >= np.sort(smax_sim_scores)[-self.sampling_k], smax_sim_scores, 0)
+                smax_sim_scores = np.exp(np.array(cos_sim_scores) / self.sampling_temp)
+                smax_sim_scores /= np.sum(smax_sim_scores)  # Softmax
+                if self.sampling_k <= len(smax_sim_scores):  # If more than k paragraphs
+                    smax_scores = np.where(smax_sim_scores >= np.sort(smax_sim_scores)[-self.sampling_k],
+                                           smax_sim_scores, 0)
+                else:  # If less than k paragraphs
+                    smax_scores = np.where(smax_sim_scores >= np.sort(smax_sim_scores)[-len(smax_sim_scores)],
+                                           smax_sim_scores, 0)
                 smax_scores /= np.sum(smax_scores)
-                two_text_list = np.random.choice(text_list, 2, p=smax_scores) 
-                
+                two_text_list = np.random.choice(text_list, 2, p=smax_scores)
+
+                # Check if the second element is empty
+                while len(two_text_list[1]) == 0:
+                    two_text_list = np.random.choice(text_list, 2, p=smax_scores)
+
         text_list.clear()
 
         text1, mask1 = self.tokenizer_text(two_text_list[0])
