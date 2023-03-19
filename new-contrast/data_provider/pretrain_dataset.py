@@ -78,7 +78,9 @@ class GINPretrainDataset(Dataset):
                 break
         # print(text_list)
         if len(text_list) < 2:
-            two_text_list = [text_list[0], text_list[0][:2 * self.text_max_len]]
+            first_text = text_list[0]
+            second_text = first_text[:self.text_max_len] + first_text
+            two_text_list = [first_text, second_text]
         else:
             if self.sampling_type == SamplingType.Random:
                 two_text_list = random.sample(text_list, 2)
@@ -102,8 +104,8 @@ class GINPretrainDataset(Dataset):
                 two_text_list = np.random.choice(text_list, 2, p=smax_scores)
 
                 # Check if the second element is empty
-                while len(two_text_list[1]) == 0:
-                    two_text_list = np.random.choice(text_list, 2, p=smax_scores)
+                # while len(two_text_list[1]) == 0:
+                #     two_text_list = np.random.choice(text_list, 2, p=smax_scores)
 
         text_list.clear()
 
