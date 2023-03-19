@@ -344,7 +344,7 @@ class GNN_graphpred(torch.nn.Module):
         else:
             self.graph_pred_linear = torch.nn.Linear(self.mult * self.emb_dim, self.num_tasks)
 
- def from_pretrained(self, model_file):
+    def from_pretrained(self, model_file):
         #self.gnn = GNN(self.num_layer, self.emb_dim, JK = self.JK, drop_ratio = self.drop_ratio)
 
         if 'pretrain' in model_file:
@@ -357,12 +357,12 @@ class GNN_graphpred(torch.nn.Module):
             missing_keys, unexpected_keys = self.gnn.load_state_dict(pretrained_dict, strict=False)
             # print(missing_keys)
             # print(unexpected_keys)
-        else:    
-            ckpt = torch.load(model_file)['state_dict']            
-            pretrained_dict = {k[14:]: v for k, v in ckpt.items()}            
+        else:
+            ckpt = torch.load(model_file)['state_dict']
+            pretrained_dict = {k[14:]: v for k, v in ckpt.items()}
             self.gnn.load_state_dict(pretrained_dict, strict=False)
 
-def forward(self, *argv):
+    def forward(self, *argv):
         if len(argv) == 4:
             x, edge_index, edge_attr, batch = argv[0], argv[1], argv[2], argv[3]
         elif len(argv) == 1:
@@ -370,7 +370,7 @@ def forward(self, *argv):
             x, edge_index, edge_attr, batch = data.x, data.edge_index, data.edge_attr, data.batch
         else:
             raise ValueError("unmatched number of arguments.")
-        
+
         # print(x)
 
         node_representation = self.gnn(x, edge_index, edge_attr)
