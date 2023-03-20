@@ -223,16 +223,13 @@ def main():
     torch.save(model.state_dict(), os.path.join(ckpt_dir, args.dataset+str(epoch)+".pth"))
 
 
-    print(test_acc_list)
-    result_dir = os.path.join('results', os.path.dirname(args.input_model_file))
+    result_dir = os.path.join('results', args.dataset, os.path.dirname(args.input_model_file))
     if not os.path.exists(result_dir): os.makedirs(result_dir)
-    result_path = os.path.join(result_dir, f'{args.dataset}-result.txt')
+    result_path = os.path.join(result_dir, f'result.txt')
     with open(result_path, 'a+') as f:
-        print(test_acc_list)
-        print(test_acc_list[max_index])
         f.write(str(test_acc_list))
         f.write('\n\n')
-        f.write(args.dataset + ' ' + str(args.runseed) + ' ' + str(test_acc_list[max_index]))
+        f.write(args.dataset + ' ' + str(args.runseed) + ' ' + str(np.max(test_acc_list)))
         f.write('\n')
 
 if __name__ == "__main__":
