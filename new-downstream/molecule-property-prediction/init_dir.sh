@@ -3,7 +3,7 @@
 # Download the data.
 dataset_names=(muv hiv bace bbbp tox21 toxcast sider clintox)
 dataset_paths=(muv HIV bace BBBP tox21 toxcast_data sider clintox) 
-zipped=(true false true false false true true true true)
+zipped=(true false true false true true true true)
 for (( i=0; i<${#dataset_names[@]}; i++ ));
 do
   # download dataset
