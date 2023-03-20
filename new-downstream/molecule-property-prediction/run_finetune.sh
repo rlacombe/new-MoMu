@@ -3,7 +3,7 @@ sampling_methods=(cos_sim_mean cos_sim_max cos_sim_sent)
 temps=(0.2 0.1 0.05)
 eps=0.5
 dataset_names=(bace bbbp tox21 toxcast sider clintox hiv muv)
-epochs=(50 50 50 50 50 50 50 30 15) # these are assigned according to how big the datasets are.
+epochs=(50 50 50 50 50 50 30 15) # these are assigned according to how big the datasets are.
 seeds=(0 1 2 3 4 5 6 7 8 9)
 
 for seed in "${seeds[@]}"
