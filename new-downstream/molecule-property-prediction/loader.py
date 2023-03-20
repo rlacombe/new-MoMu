@@ -339,10 +339,10 @@ class MoleculeDataset_aug(InMemoryDataset):
     def process(self):
         data_smiles_list = []
         data_list = []
-        self.raw_paths[0] = self.dataset_path
+        self.dataset_path = self.dataset_path
 
         if self.dataset == 'zinc_standard_agent':
-            input_path = self.raw_paths[0]
+            input_path = self.dataset_path
             input_df = pd.read_csv(input_path, sep=',', compression='gzip',
                                    dtype='str')
             smiles_list = list(input_df['smiles'])
@@ -449,7 +449,7 @@ class MoleculeDataset_aug(InMemoryDataset):
 
         elif self.dataset == 'tox21':
             smiles_list, rdkit_mol_objs, labels = \
-                _load_tox21_dataset(self.raw_paths[0])
+                _load_tox21_dataset(self.dataset_path)
             for i in range(len(smiles_list)):
                 print(i)
                 rdkit_mol = rdkit_mol_objs[i]
@@ -467,7 +467,7 @@ class MoleculeDataset_aug(InMemoryDataset):
 
         elif self.dataset == 'hiv':
             smiles_list, rdkit_mol_objs, labels = \
-                _load_hiv_dataset(self.raw_paths[0])
+                _load_hiv_dataset(self.dataset_path)
             for i in range(len(smiles_list)):
                 print(i)
                 rdkit_mol = rdkit_mol_objs[i]
@@ -485,7 +485,7 @@ class MoleculeDataset_aug(InMemoryDataset):
 
         elif self.dataset == 'bace':
             smiles_list, rdkit_mol_objs, folds, labels = \
-                _load_bace_dataset(self.raw_paths[0])
+                _load_bace_dataset(self.dataset_path)
             for i in range(len(smiles_list)):
                 print(i)
                 rdkit_mol = rdkit_mol_objs[i]
@@ -504,7 +504,7 @@ class MoleculeDataset_aug(InMemoryDataset):
 
         elif self.dataset == 'bbbp':
             smiles_list, rdkit_mol_objs, labels = \
-                _load_bbbp_dataset(self.raw_paths[0])
+                _load_bbbp_dataset(self.dataset_path)
             for i in range(len(smiles_list)):
                 print(i)
                 rdkit_mol = rdkit_mol_objs[i]
@@ -523,7 +523,7 @@ class MoleculeDataset_aug(InMemoryDataset):
 
         elif self.dataset == 'clintox':
             smiles_list, rdkit_mol_objs, labels = \
-                _load_clintox_dataset(self.raw_paths[0])
+                _load_clintox_dataset(self.dataset_path)
             for i in range(len(smiles_list)):
                 print(i)
                 rdkit_mol = rdkit_mol_objs[i]
@@ -542,7 +542,7 @@ class MoleculeDataset_aug(InMemoryDataset):
 
         elif self.dataset == 'esol':
             smiles_list, rdkit_mol_objs, labels = \
-                _load_esol_dataset(self.raw_paths[0])
+                _load_esol_dataset(self.dataset_path)
             for i in range(len(smiles_list)):
                 print(i)
                 rdkit_mol = rdkit_mol_objs[i]
@@ -560,7 +560,7 @@ class MoleculeDataset_aug(InMemoryDataset):
 
         elif self.dataset == 'freesolv':
             smiles_list, rdkit_mol_objs, labels = \
-                _load_freesolv_dataset(self.raw_paths[0])
+                _load_freesolv_dataset(self.dataset_path)
             for i in range(len(smiles_list)):
                 print(i)
                 rdkit_mol = rdkit_mol_objs[i]
@@ -578,7 +578,7 @@ class MoleculeDataset_aug(InMemoryDataset):
 
         elif self.dataset == 'lipophilicity':
             smiles_list, rdkit_mol_objs, labels = \
-                _load_lipophilicity_dataset(self.raw_paths[0])
+                _load_lipophilicity_dataset(self.dataset_path)
             for i in range(len(smiles_list)):
                 print(i)
                 rdkit_mol = rdkit_mol_objs[i]
@@ -596,7 +596,7 @@ class MoleculeDataset_aug(InMemoryDataset):
 
         elif self.dataset == 'muv':
             smiles_list, rdkit_mol_objs, labels = \
-                _load_muv_dataset(self.raw_paths[0])
+                _load_muv_dataset(self.dataset_path)
             for i in range(len(smiles_list)):
                 print(i)
                 rdkit_mol = rdkit_mol_objs[i]
@@ -614,7 +614,7 @@ class MoleculeDataset_aug(InMemoryDataset):
 
         elif self.dataset == 'pcba':
             smiles_list, rdkit_mol_objs, labels = \
-                _load_pcba_dataset(self.raw_paths[0])
+                _load_pcba_dataset(self.dataset_path)
             for i in range(len(smiles_list)):
                 print(i)
                 rdkit_mol = rdkit_mol_objs[i]
@@ -632,7 +632,7 @@ class MoleculeDataset_aug(InMemoryDataset):
 
         elif self.dataset == 'pcba_pretrain':
             smiles_list, rdkit_mol_objs, labels = \
-                _load_pcba_dataset(self.raw_paths[0])
+                _load_pcba_dataset(self.dataset_path)
             downstream_inchi = set(pd.read_csv(os.path.join(self.root,
                                                             'downstream_mol_inchi_may_24_2019'),
                                                sep=',', header=None)[0])
@@ -661,7 +661,7 @@ class MoleculeDataset_aug(InMemoryDataset):
 
         elif self.dataset == 'sider':
             smiles_list, rdkit_mol_objs, labels = \
-                _load_sider_dataset(self.raw_paths[0])
+                _load_sider_dataset(self.dataset_path)
             for i in range(len(smiles_list)):
                 print(i)
                 rdkit_mol = rdkit_mol_objs[i]
@@ -679,7 +679,7 @@ class MoleculeDataset_aug(InMemoryDataset):
 
         elif self.dataset == 'toxcast':
             smiles_list, rdkit_mol_objs, labels = \
-                _load_toxcast_dataset(self.raw_paths[0])
+                _load_toxcast_dataset(self.dataset_path)
             for i in range(len(smiles_list)):
                 print(i)
                 rdkit_mol = rdkit_mol_objs[i]
@@ -697,7 +697,7 @@ class MoleculeDataset_aug(InMemoryDataset):
                     data_smiles_list.append(smiles_list[i])
 
         elif self.dataset == 'ptc_mr':
-            input_path = self.raw_paths[0]
+            input_path = self.dataset_path
             input_df = pd.read_csv(input_path, sep=',', header=None, names=['id', 'label', 'smiles'])
             smiles_list = input_df['smiles']
             labels = input_df['label'].values
@@ -1018,7 +1018,7 @@ class MoleculeDataset(InMemoryDataset):
 
         elif self.dataset == 'tox21':
             smiles_list, rdkit_mol_objs, labels = \
-                _load_tox21_dataset(self.raw_paths[0])
+                _load_tox21_dataset(self.dataset_path)
             for i in range(len(smiles_list)):
                 print(i)
                 rdkit_mol = rdkit_mol_objs[i]
@@ -1036,7 +1036,7 @@ class MoleculeDataset(InMemoryDataset):
 
         elif self.dataset == 'hiv':
             smiles_list, rdkit_mol_objs, labels = \
-                _load_hiv_dataset(self.raw_paths[0])
+                _load_hiv_dataset(self.dataset_path)
             for i in range(len(smiles_list)):
                 print(i)
                 rdkit_mol = rdkit_mol_objs[i]
@@ -1054,7 +1054,7 @@ class MoleculeDataset(InMemoryDataset):
 
         elif self.dataset == 'bace':
             smiles_list, rdkit_mol_objs, folds, labels = \
-                _load_bace_dataset(self.raw_paths[0])
+                _load_bace_dataset(self.dataset_path)
             for i in range(len(smiles_list)):
                 print(i)
                 rdkit_mol = rdkit_mol_objs[i]
@@ -1073,7 +1073,7 @@ class MoleculeDataset(InMemoryDataset):
 
         elif self.dataset == 'bbbp':
             smiles_list, rdkit_mol_objs, labels = \
-                _load_bbbp_dataset(self.raw_paths[0])
+                _load_bbbp_dataset(self.dataset_path)
             for i in range(len(smiles_list)):
                 print(i)
                 rdkit_mol = rdkit_mol_objs[i]
@@ -1092,7 +1092,7 @@ class MoleculeDataset(InMemoryDataset):
 
         elif self.dataset == 'clintox':
             smiles_list, rdkit_mol_objs, labels = \
-                _load_clintox_dataset(self.raw_paths[0])
+                _load_clintox_dataset(self.dataset_path)
             for i in range(len(smiles_list)):
                 print(i)
                 rdkit_mol = rdkit_mol_objs[i]
@@ -1111,7 +1111,7 @@ class MoleculeDataset(InMemoryDataset):
 
         elif self.dataset == 'esol':
             smiles_list, rdkit_mol_objs, labels = \
-                _load_esol_dataset(self.raw_paths[0])
+                _load_esol_dataset(self.dataset_path)
             for i in range(len(smiles_list)):
                 print(i)
                 rdkit_mol = rdkit_mol_objs[i]
@@ -1129,7 +1129,7 @@ class MoleculeDataset(InMemoryDataset):
 
         elif self.dataset == 'freesolv':
             smiles_list, rdkit_mol_objs, labels = \
-                _load_freesolv_dataset(self.raw_paths[0])
+                _load_freesolv_dataset(self.dataset_path)
             for i in range(len(smiles_list)):
                 print(i)
                 rdkit_mol = rdkit_mol_objs[i]
@@ -1147,7 +1147,7 @@ class MoleculeDataset(InMemoryDataset):
 
         elif self.dataset == 'lipophilicity':
             smiles_list, rdkit_mol_objs, labels = \
-                _load_lipophilicity_dataset(self.raw_paths[0])
+                _load_lipophilicity_dataset(self.dataset_path)
             for i in range(len(smiles_list)):
                 print(i)
                 rdkit_mol = rdkit_mol_objs[i]
@@ -1183,7 +1183,7 @@ class MoleculeDataset(InMemoryDataset):
 
         elif self.dataset == 'pcba':
             smiles_list, rdkit_mol_objs, labels = \
-                _load_pcba_dataset(self.raw_paths[0])
+                _load_pcba_dataset(self.dataset_path)
             for i in range(len(smiles_list)):
                 print(i)
                 rdkit_mol = rdkit_mol_objs[i]
@@ -1201,7 +1201,7 @@ class MoleculeDataset(InMemoryDataset):
 
         elif self.dataset == 'pcba_pretrain':
             smiles_list, rdkit_mol_objs, labels = \
-                _load_pcba_dataset(self.raw_paths[0])
+                _load_pcba_dataset(self.dataset_path)
             downstream_inchi = set(pd.read_csv(os.path.join(self.root,
                                                             'downstream_mol_inchi_may_24_2019'),
                                                sep=',', header=None)[0])
@@ -1230,7 +1230,7 @@ class MoleculeDataset(InMemoryDataset):
 
         elif self.dataset == 'sider':
             smiles_list, rdkit_mol_objs, labels = \
-                _load_sider_dataset(self.raw_paths[0])
+                _load_sider_dataset(self.dataset_path)
             for i in range(len(smiles_list)):
                 print(i)
                 rdkit_mol = rdkit_mol_objs[i]
@@ -1248,7 +1248,7 @@ class MoleculeDataset(InMemoryDataset):
 
         elif self.dataset == 'toxcast':
             smiles_list, rdkit_mol_objs, labels = \
-                _load_toxcast_dataset(self.raw_paths[0])
+                _load_toxcast_dataset(self.dataset_path)
             for i in range(len(smiles_list)):
                 print(i)
                 rdkit_mol = rdkit_mol_objs[i]
@@ -1266,7 +1266,7 @@ class MoleculeDataset(InMemoryDataset):
                     data_smiles_list.append(smiles_list[i])
 
         elif self.dataset == 'ptc_mr':
-            input_path = self.raw_paths[0]
+            input_path = self.dataset_path
             input_df = pd.read_csv(input_path, sep=',', header=None, names=['id', 'label', 'smiles'])
             smiles_list = input_df['smiles']
             labels = input_df['label'].values
