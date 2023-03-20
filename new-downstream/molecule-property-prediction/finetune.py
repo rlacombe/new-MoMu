@@ -225,11 +225,11 @@ def main():
 
     result_dir = os.path.join('results', args.dataset, os.path.dirname(args.input_model_file))
     if not os.path.exists(result_dir): os.makedirs(result_dir)
-    result_path = os.path.join(result_dir, f'result.txt')
+    result_path = os.path.join(result_dir, f'{args.runseed}-result.txt')
     with open(result_path, 'a+') as f:
         f.write(str(test_acc_list))
         f.write('\n\n')
-        f.write(args.dataset + ' ' + str(args.runseed) + ' ' + str(np.max(test_acc_list)))
+        f.write(str(np.max(test_acc_list)))
         f.write('\n')
 
 if __name__ == "__main__":
