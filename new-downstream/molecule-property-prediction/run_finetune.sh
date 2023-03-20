@@ -21,7 +21,7 @@ do
 	echo $dataset_name
         echo $temp
         echo $sampling_method
-        model_path="all_checkpoints/$graph_augs-$sampling_method-$temp-$eps/best-ckpt.ckpt"
+        model_path="all_checkpoints/$graph_augs-$sampling_method-t$temp-eps$eps/best-ckpt.ckpt"
         echo $model_path
         python finetune.py \
     	--num_workers 2 \
