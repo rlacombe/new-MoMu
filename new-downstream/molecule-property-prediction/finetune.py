@@ -115,6 +115,14 @@ def main():
     parser.add_argument('--num_workers', type=int, default = 4, help='number of workers for dataset loading')
     args = parser.parse_args()
 
+    result_dir = os.path.join('results', args.dataset, os.path.dirname(args.input_model_file))
+    result_path = os.path.join(result_dir, f'{args.runseed}-result.txt')
+    if os.path.exists(result_path): 
+        print("REsults already exist. Skipping...")
+        return
+
+
+
 
     torch.manual_seed(args.runseed)
     np.random.seed(args.runseed)
