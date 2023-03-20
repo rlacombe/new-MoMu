@@ -6,3 +6,4 @@ rdkit-pypi
 pubchempy
 tensorboardX
 torchvision==0.14.0
+gdown
