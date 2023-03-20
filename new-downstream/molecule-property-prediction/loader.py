@@ -911,7 +911,7 @@ class MoleculeDataset(InMemoryDataset):
         data_list = []
 
         if self.dataset == 'zinc_standard_agent':
-            input_path = self.raw_paths[0]
+            input_path = self.dataset_path 
             input_df = pd.read_csv(input_path, sep=',', compression='gzip',
                                    dtype='str')
             smiles_list = list(input_df['smiles'])

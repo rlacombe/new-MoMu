@@ -1,15 +1,18 @@
 graph_augs=dnodes-subgraph
-sampling_methods=(cos_sim_mean cos_sim_max cos_sim_sent)
-temps=(0.2 0.1 0.05)
+#sampling_methods=(cos_sim_mean cos_sim_max cos_sim_sent)
+#temps=(0.2 0.1 0.05)
+sampling_methods=(cos_sim_mean)
+temps=(0.2)
 eps=0.5
-dataset_names=(muv hiv bace bbbp tox21 toxcast sider clintox)
+dataset_names=(bace bbbp tox21 toxcast sider clintox hiv muv)
 epochs=(15 30 100 100 50 50 100 100) # these are assigned according to how big the datasets are.
 
 
 for (( i=0; i<${#dataset_names[@]}; i++ ));
 do
   dataset_name=${dataset_names[i]}
-  num_epochs=${epochs[i]}
+  #num_epochs=${epochs[i]}
+  num_epochs=1
   dataset_path=dataset/$dataset_name/raw/$dataset_name.csv
   for sampling_method in "${sampling_methods[@]}"
   do
