@@ -1,5 +1,25 @@
+# IMPORTANT: Setting up
+
+## Steps:
+1) Run `./init_dir.sh`
+
+2) `vi run_finetune.sh` and change `seeds=(1 2 3 4 5 6 7 8 9)` to whatever your assigned seed values are.
+
+3) type `tmux` (this will start a session that won't close even when you close your connection to the server, so thta it runs forever)
+
+4) `./run_finetune.sh`
+
+5) `ctrl-b d` (to exit tmux screen)
+
+6) Now, do whatever you want! Whenever you reconnect to your sever, you can type `tmux attach -d -t 0` and you'll reattach to the screen and can view the output and everything. (use `ctrl-b [` to be able to scroll through the output)
+
+
+
+## Other notes:
 NOTE: I had to comment out a line in torch\_geometric to get this to work; basically, it was the line in \_\_init\_\_ in the Dataset class where it checks if it should run self.\_download() or not. When it ran self.\_download(), it stupidly ran self.raw\_file\_names (you can see why if you trace code), and that triggers a NotImlpementedError in InMemoryDatset. I just set the chck to False so that self.\_downlad() would never run...
 
+You may have to do this too. If so, just type:
+`vi /opt/conda/lib/python3.7/site-packages/torch_geometric/data/dataset.py`, navigate to line 90, and change the if statement to `if False` (so that it never triggers). 
 
 
 # MoleculePrediction
