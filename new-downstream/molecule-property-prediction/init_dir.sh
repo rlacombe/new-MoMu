@@ -30,4 +30,4 @@ do
 done
 
 # Download the checkpoints
-# TODO
+python download_checkpoints.py
