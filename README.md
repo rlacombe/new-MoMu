@@ -1,3 +1,7 @@
+# IMPORTANT: setting up
+
+Run `./server-setup.sh` to get the packages and data you need installed.
+
 # Molecular Multimodal Foundation Models
 
 This repository contains the code for an exploration of molecular multimodal foundation models for molecule generation from natural language.
