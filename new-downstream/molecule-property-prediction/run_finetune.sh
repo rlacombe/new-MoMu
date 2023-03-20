@@ -13,7 +13,7 @@ do
   for (( i=0; i<${#dataset_names[@]}; i++ ));
   do
     dataset_name=${dataset_names[i]}
-    num_epochs=1 #${epochs[i]}
+    num_epochs=${epochs[i]}
     dataset_path=dataset/$dataset_name/raw/$dataset_name.csv
     for sampling_method in "${sampling_methods[@]}"
     do
@@ -23,7 +23,7 @@ do
 	echo $dataset_name
         echo $temp
         echo $sampling_method
-        model_path="all_checkpoints/$graph_augs-$sampling_method-$temp-$eps/best-ckpt.ckpt"
+        model_path="all_checkpoints/$graph_augs-$sampling_method-t$temp-eps$eps/best-ckpt.ckpt"
         echo $model_path
         python finetune.py \
     	--num_workers 2 \
