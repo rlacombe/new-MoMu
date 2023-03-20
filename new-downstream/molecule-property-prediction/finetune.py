@@ -235,9 +235,11 @@ def main():
     if not os.path.exists(result_dir): os.makedirs(result_dir)
     result_path = os.path.join(result_dir, f'{args.runseed}-result.txt')
     with open(result_path, 'a+') as f:
-        f.write(str(test_acc_list))
+        f.write(f"val: {val_acc_list}")
+        f.write("\n")
+        f.write(f"test: {test_acc_list}")
         f.write('\n\n')
-        f.write(str(np.max(test_acc_list)))
+        f.write(str(test_acc_list[np.argmax(val_acc_list)]))
         f.write('\n')
 
 if __name__ == "__main__":
