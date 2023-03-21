@@ -275,8 +275,6 @@ def chemical_augmentation(data, rate=0.1, num_augs_to_try=2):
 
     try:
       data, aug = chemical_aug_fns[aug_index](data, rate)
-      if aug: completed_augs += 1
-      if completed_augs >= num_augs_to_try: break  # We'll keep going if some augmentations don't take affect.
     except Exception as e:
       print(f"Exception running aug {chemical_aug_fns[aug_index].__name__}: {e}")
     
