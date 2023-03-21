@@ -37,7 +37,7 @@ def get_sampled_indices(cond, rate):
   Get indices where 'cond' holds.
   """
   idx = torch.where(cond)[0]
-  num_idx_to_sample = math.ceil(idx.shape[0] * rate)
+  num_idx_to_sample = min(idx.shape[0], 0)
   idx = idx[torch.randperm(idx.shape[0])]
   return idx[:num_idx_to_sample].tolist()
 
@@ -240,7 +240,7 @@ Graph Augmentation Functions.
 def identity(data, rate=0.1):
     return data
 
-def chemical_augmentation(data, rate=0.1, num_augs_to_try=2):
+def chemical_augmentation_rand(data, rate=0.1, num_augs_to_try=2):
     chemical_aug_fns = [
         methylation,
         amination,
@@ -251,6 +251,28 @@ def chemical_augmentation(data, rate=0.1, num_augs_to_try=2):
     aug_indices = np.random.permutation(np.arange(len(chemical_aug_fns))).tolist()
     completed_augs = 0
     for aug_index in aug_indices:
+        try:
+          data, aug = chemical_aug_fns[aug_index](data, rate)
+          if aug: completed_augs += 1
+          if completed_augs >= num_augs_to_try: break  # We'll keep going if some augmentations don't take affect.
+        except Exception as e:
+          print(f"Exception running aug {chemical_aug_fns[aug_index].__name__}: {e}")
+    
+    return data
+
+
+def chemical_augmentation(data, rate=0.1, num_augs_to_try=2):
+    chemical_aug_fns = [
+        methylation,
+        amination,
+        demethylation,
+        deamination
+    ]
+    # Randomly permute the indices so we can do several augmentations.
+    aug_indices = np.random.permutation(np.arange(len(chemical_aug_fns))).tolist()
+    completed_augs = 0
+    
+    for aug_index in aug_indices[0]:
         try:
           data, aug = chemical_aug_fns[aug_index](data, rate)
           if aug: completed_augs += 1
