@@ -1,14 +1,14 @@
 import torch
 from torch_geometric.data import Data, Dataset
 import torch_geometric
-from utils.GraphAug import drop_nodes, permute_edges, subgraph, mask_nodes
+from utils.GraphAug import *
 from copy import deepcopy
 import numpy as np
 import os
 import random
 from transformers import BertTokenizer
 from enum import IntEnum
-import utils.molecular_augmentations as mol
+
 
 class SamplingType(IntEnum):
     CosSimMean = 0,
@@ -127,12 +127,10 @@ class GINPretrainDataset(Dataset):
         # sl = torch.tensor([[n, n] for n in range(node_num)]).t()
         # data.edge_index = torch.cat((data.edge_index, sl), dim=1)
 
-        return mol.methylation(deepcopy(data)) # 'TODO' hacky, pls fix
-
-        if graph_aug == 'id':
-            data_aug = deepcopy(data)
-        elif graph_aug == 'chem':
-            data_aug = mol.methylation(deepcopy(data)) 
+        if graph_aug == 'identity':
+            data_aug = identity(deepcopy(data))
+        elif graph_aug == 'chemical_augmentation':
+            data_aug = chemical_augmentation(deepcopy(data))
         elif graph_aug == 'dnodes':
             data_aug = drop_nodes(deepcopy(data))
         elif graph_aug == 'pedges':
