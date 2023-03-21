@@ -31,21 +31,6 @@ class GINPretrainDataModule(LightningDataModule):
     def setup(self, stage: str = None):
         self.train_dataset = self.dataset
 
-    def train_dataloader(self):
-        loader = torch_geometric.loader.DataLoader(
-            self.train_dataset,
-            batch_size=self.batch_size,
-            shuffle=True,
-            num_workers=self.num_workers,
-            pin_memory=False,
-            drop_last=True,
-            collate_fn = collate_fn() # set the collate_fn argument of the data loader to collate_fn
-            # persistent_workers = True
-        )
-        print('len(train_dataloader)', len(loader))
-
-        return loader
-    
     # define the molecular augmentation of the 2nd graph item
     def collate_fn(self, batch):
         device = self.device
@@ -69,3 +54,20 @@ class GINPretrainDataModule(LightningDataModule):
             graph = graphs[i]    
             graphs[i] = chemical_augmentation(graph)
         return graphs
+
+    def train_dataloader(self):
+        loader = torch_geometric.loader.DataLoader(
+            self.train_dataset,
+            batch_size=self.batch_size,
+            shuffle=True,
+            num_workers=self.num_workers,
+            pin_memory=False,
+            drop_last=True,
+            collate_fn = collate_fn() # set the collate_fn argument of the data loader to collate_fn
+            # persistent_workers = True
+        )
+        print('len(train_dataloader)', len(loader))
+
+        return loader
+    
+    
