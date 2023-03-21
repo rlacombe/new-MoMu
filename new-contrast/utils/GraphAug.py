@@ -37,7 +37,7 @@ def get_sampled_indices(cond, rate):
   Get indices where 'cond' holds.
   """
   idx = torch.where(cond)[0]
-  num_idx_to_sample = min(idx.shape[0], 0)
+  num_idx_to_sample = min(max(idx.shape[0], 0), 1)
   idx = idx[torch.randperm(idx.shape[0])]
   return idx[:num_idx_to_sample].tolist()
 

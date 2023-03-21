@@ -5,7 +5,7 @@ import torch
 from torch.nn import functional as F
 import torch_geometric
 from data_provider.pretrain_dataset import GINPretrainDataset
-
+from utils.GraphAug import *
 
 
 class GINPretrainDataModule(LightningDataModule):
@@ -39,7 +39,33 @@ class GINPretrainDataModule(LightningDataModule):
             num_workers=self.num_workers,
             pin_memory=False,
             drop_last=True,
+            collate_fn = collate_fn() # set the collate_fn argument of the data loader to collate_fn
             # persistent_workers = True
         )
         print('len(train_dataloader)', len(loader))
+
         return loader
+    
+    # define the molecular augmentation of the 2nd graph item
+    def collate_fn(self, batch):
+        device = self.device
+
+        data_aug1 = torch.stack([x[0] for x in batch]).to(device)
+        data_aug2 = torch.stack([x[1] for x in batch]).to(device)
+        text1 = torch.stack([x[2] for x in batch]).squeeze(1).to(device)
+        mask1 = torch.stack([x[3] for x in batch]).squeeze(1).to(device)
+        text2 = torch.stack([x[4] for x in batch]).squeeze(1).to(device)
+        mask2 = torch.stack([x[5] for x in batch]).squeeze(1).to(device)
+    
+        # perform data_aug2 on the GPU
+        data_aug2 = self.augment_data(data_aug2).to(device)
+    
+        return data_aug1, data_aug2, text1, mask1, text2, mask2
+    
+    # now define the augmentation
+    def augment_data(batch):
+        graphs = batch
+        for i in range(len(graphs)):
+            graph = graphs[i]    
+            graphs[i] = chemical_augmentation(graph)
+        return graphs

@@ -64,8 +64,8 @@ class GINPretrainDataset(Dataset):
         graph_path = os.path.join(self.root, 'graph', graph_name)
         data_graph = torch.load(graph_path)
 
-        data_aug1 = self.augment(data_graph, self.graph_aug1)
-        data_aug2 = self.augment(data_graph, self.graph_aug2)
+        data_aug1 = data_graph # self.augment(data_graph, self.graph_aug1)
+        data_aug2 = deepcopy(data_graph) # self.augment(data_graph, self.graph_aug2)
 
         # load and process text
         text_path = os.path.join(self.root, 'text', text_name)
