@@ -107,6 +107,8 @@ def adjust_edges(data, node_remove_idx):
   to_adjust = torch.where(data.edge_index[1, :] > idx)[0]
   data.edge_index[1, to_adjust] -= 1
 
+  return data
+
 def replace_hydrogen_with_group(data, rate, node_features, edge_features):
     # Sample indices of nodes to modify.
     idx = get_sampled_indices(data.x[:, 4] > 0, rate)
@@ -243,9 +245,12 @@ def chemical_augmentation(data, rate=0.1, num_augs_to_try=2):
     aug_indices = np.random.permutation(np.arange(len(chemical_aug_fns))).tolist()
     completed_augs = 0
     for aug_index in aug_indices:
-        data, aug = chemical_aug_fns[aug_index](data)
-        if aug: completed_augs += 1
-        if completed_augs >= num_augs_to_try: break  # We'll keep going if some augmentations don't take affect.
+        try:
+          data, aug = chemical_aug_fns[aug_index](data)
+          if aug: completed_augs += 1
+          if completed_augs >= num_augs_to_try: break  # We'll keep going if some augmentations don't take affect.
+        except Exception as e:
+          print(f"Exception running aug {chemical_aug_fns[aug_index].__name__}: {e}")
     
     return data
 
