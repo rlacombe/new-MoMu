@@ -3,14 +3,21 @@ import numpy as np
 import math
 
 
-"""Some more utils"""
+"""
+This module implements chemically-relevant augmentations of molecular graphs for contrastive pre-training purposes.
+We perform random augmentations of molecules by simulating the following reactions:
+- Methylation
+- De-methylation
+- Amination
+- De-amination
 
+'TODO': ideas for more reactions to implement
+- Hydroxylation: Adds a hydroxyl group (-OH) to a molecule.    
+- Reduction: Converts a functional group (e.g., -C=O) to a different functional group (e.g., -CH2).
+- Oxidation: Converts a functional group to a different functional group with more oxygen atoms (e.g., -CH2 to -COOH).
 """
-'TODO':
-Hydroxylation: Adds a hydroxyl group (-OH) to a molecule.    
-Reduction: Converts a functional group (e.g., -C=O) to a different functional group (e.g., -CH2).
-Oxidation: Converts a functional group to a different functional group with more oxygen atoms (e.g., -CH2 to -COOH).
-"""
+
+
 
 def torch_diff(t1, t2):
   """
@@ -154,8 +161,6 @@ def replace_group_with_hydrogen(data, rate, cond):
   return data, True
 
 
-
-# this works on some test examples. I tested it.
 def methylation(data, rate=0.1):
     """
     Methylation reaction: Replaces a hydrogen atom with a methyl group (-CH3).
@@ -216,9 +221,10 @@ def demethylation(data, rate=0.1):
   )
   return replace_group_with_hydrogen(data, rate, cond)
 
+
 def deamination(data, rate=0.1):
   """
-  Reaplce NH2 with a hydrogen.
+  Replace NH2 with a hydrogen.
   """
   # Sample indices of nodes to modify.
   cond = torch.logical_and(
