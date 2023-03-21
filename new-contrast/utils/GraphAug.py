@@ -97,6 +97,16 @@ def remove_edges(data, keep_idx):
   data.edge_attr = data.edge_attr[keep_idx, :]
   return data
 
+def adjust_edges(data, node_remove_idx):
+  """
+  Basically, we need to decrement the index on edges for nodes greater than the idx removed
+  """
+  idx = torch.tensor(node_remove_idx)
+  to_adjust = torch.where(data.edge_index[0, :] > idx)[0]
+  data.edge_index[0, to_adjust] -= 1
+  to_adjust = torch.where(data.edge_index[1, :] > idx)[0]
+  data.edge_index[1, to_adjust] -= 1
+
 def replace_hydrogen_with_group(data, rate, node_features, edge_features):
     # Sample indices of nodes to modify.
     idx = get_sampled_indices(data.x[:, 4] > 0, rate)
@@ -135,6 +145,9 @@ def replace_group_with_hydrogen(data, rate, cond):
 
   # remove the edges containing the node we eliminated.
   data = remove_edges(data, edge_keep_idx)
+
+  # decrement node indices after the one removed from remaining edges.
+  data = adjust_edges(data, idx)
 
   return data, True
 
