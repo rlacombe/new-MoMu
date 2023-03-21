@@ -1,7 +1,7 @@
 import torch
 from torch_geometric.data import Data, Dataset
 import torch_geometric
-from utils.GraphAug import drop_nodes, permute_edges, subgraph, mask_nodes
+from utils.GraphAug import *
 from copy import deepcopy
 import numpy as np
 import os
