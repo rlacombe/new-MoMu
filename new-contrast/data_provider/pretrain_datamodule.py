@@ -49,10 +49,14 @@ class GINPretrainDataModule(LightningDataModule):
     
     # now define the augmentation
     def augment_data(batch):
+        @torch.no_grad()
+
         graphs = batch
         for i in range(len(graphs)):
             graph = graphs[i]    
             graphs[i] = chemical_augmentation(graph)
+
+        @torch.grad()    
         return graphs
 
     def train_dataloader(self):
