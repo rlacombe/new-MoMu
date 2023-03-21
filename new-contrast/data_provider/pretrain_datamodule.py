@@ -63,7 +63,7 @@ class GINPretrainDataModule(LightningDataModule):
             num_workers=self.num_workers,
             pin_memory=False,
             drop_last=True,
-            collate_fn = collate_fn() # set the collate_fn argument of the data loader to collate_fn
+            collate_fn = self.collate_fn # set the collate_fn argument of the data loader to collate_fn
             # persistent_workers = True
         )
         print('len(train_dataloader)', len(loader))
