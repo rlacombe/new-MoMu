@@ -1,7 +1,7 @@
 import torch
 from torch_geometric.data import Data, Dataset
 import torch_geometric
-from utils.GraphAug import drop_nodes, permute_edges, subgraph, mask_nodes
+from utils.GraphAug import *
 from copy import deepcopy
 import numpy as np
 import os
@@ -130,6 +130,10 @@ class GINPretrainDataset(Dataset):
             data_aug = subgraph(deepcopy(data))
         elif graph_aug == 'mask_nodes':
             data_aug = mask_nodes(deepcopy(data))
+        elif graph_aug == 'identity':
+            data_aug = identity(deepcopy(data))
+        elif graph_aug == 'chemical_augmentation':
+            data_aug = chemical_augmentation(deepcopy(data))
         elif graph_aug == 'random2':  # choose one from two augmentations
             n = np.random.randint(2)
             if n == 0:
