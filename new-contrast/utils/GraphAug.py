@@ -271,14 +271,14 @@ def chemical_augmentation(data, rate=0.1, num_augs_to_try=2):
     # Randomly permute the indices so we can do several augmentations.
     aug_indices = np.random.permutation(np.arange(len(chemical_aug_fns))).tolist()
     completed_augs = 0
-    
-    for aug_index in aug_indices[0]:
-        try:
-          data, aug = chemical_aug_fns[aug_index](data, rate)
-          if aug: completed_augs += 1
-          if completed_augs >= num_augs_to_try: break  # We'll keep going if some augmentations don't take affect.
-        except Exception as e:
-          print(f"Exception running aug {chemical_aug_fns[aug_index].__name__}: {e}")
+    aug_index = aug_indices[0]
+
+    try:
+      data, aug = chemical_aug_fns[aug_index](data, rate)
+      if aug: completed_augs += 1
+      if completed_augs >= num_augs_to_try: break  # We'll keep going if some augmentations don't take affect.
+    except Exception as e:
+      print(f"Exception running aug {chemical_aug_fns[aug_index].__name__}: {e}")
     
     return data
 
