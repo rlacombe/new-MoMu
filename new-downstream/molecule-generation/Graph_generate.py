@@ -622,6 +622,7 @@ def plot_colormap():
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
+    parser.add_argument("--input_text", type=str, default='This molecule is beautiful.')
     parser.add_argument("--model_dir", type=str, default='./results')
     parser.add_argument("--data_dir", type=str, default='../data')
     parser.add_argument('--data_name', type=str, default='qm9', choices=['qm9', 'zinc250k'], help='dataset name')
@@ -816,16 +817,7 @@ if __name__ == "__main__":
 
 
 
-    input_text_list = ['The molecule is beautiful.',
-                       'The molecule is versatile.',
-                       'The molecule is strange.',
-                       'fluorescent molecules',
-                       'The molecule contains hydroxyl and carboxyl groups, which can be thermally decomposed to generate ammonia gas, and the oxygen content in the molecule is not less than 20%.',
-                       'The molecule has high water solubility and barrier permeability with low toxicity.',
-                       'molecules containing nucleophilic groups',
-                       'molecules containing electrophilic groups',
-                       'molecules containing hydrophilic groups',
-                       'molecules containing lipophilic groups']
+    input_text_list = [args.input_text]
 
     text_num = len(input_text_list)
     print(text_num)
@@ -835,7 +827,7 @@ if __name__ == "__main__":
 
         input_text = input_text_list[j]
         all_seeds = np.zeros((3,z_dim))
-        for i in range(3):           
+        for i in range(3):
             z = np.random.normal(mu, sigma, (batch_size, z_dim))
             all_seeds[i,:] = z[0,:]
             z_init = torch.from_numpy(z).float().to(device)
