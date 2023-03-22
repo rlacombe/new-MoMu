@@ -623,6 +623,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--input_text", type=str, default='This molecule is beautiful.')
+    parser.add_argument("--checkpoint_name", type=str, default='littlegin=graphclinit_bert=scibert_epoch=299-step=18300.ckpt')
     parser.add_argument("--model_dir", type=str, default='./results')
     parser.add_argument("--data_dir", type=str, default='../data')
     parser.add_argument('--data_name', type=str, default='qm9', choices=['qm9', 'zinc250k'], help='dataset name')
@@ -684,7 +685,7 @@ if __name__ == "__main__":
 
     # ckpt = torch.load("littlegin=graphclinit_bert=scibert_epoch=299-step=18300.ckpt")
     # ckpt = torch.load("littlegin=graphclinit_bert=kvplm_epoch=299-step=18300.ckpt")
-    ckpt = torch.load("GIN-SciBERT-XLclp-baseline-epoch=29-step=3630.ckpt")
+    ckpt = torch.load(args.checkpoint_name)
 
     ckpt = ckpt['state_dict']
     print(ckpt.keys())
