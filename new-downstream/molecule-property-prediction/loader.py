@@ -20,7 +20,7 @@ from itertools import repeat, product, chain
 
 # allowable node and edge features
 allowable_features = {
-    'possible_atomic_num_list' : list(range(1, 119)),
+    'possible_atomic_num_list' : list(range(0, 119)),
     'possible_formal_charge_list' : [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5],
     'possible_chirality_list' : [
         Chem.rdchem.ChiralType.CHI_UNSPECIFIED,
